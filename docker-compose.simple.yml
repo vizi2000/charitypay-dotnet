@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database only
+  postgres:
+    image: postgres:15-alpine
+    container_name: charitypay-postgres-simple
+    environment:
+      POSTGRES_DB: charitypay_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev_password_123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_simple_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - charitypay-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d charitypay_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer for database management
+  adminer:
+    image: adminer:4.8.1
+    container_name: charitypay-adminer-simple
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - charitypay-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_simple_data:
+    driver: local
+
+networks:
+  charitypay-network:
+    driver: bridge
