@@ -1,0 +1,102 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8BB2717D-0F34-4D22-9F8E-1E8F9D8A0C3E}"
+EndProject
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9DD2717D-0F34-4D22-9F8E-1E8F9D8A0C3F}"
+EndProject
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{ADD2717D-0F34-4D22-9F8E-1E8F9D8A0C40}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		PLANNING.md = PLANNING.md
+		ARCHITECTURE.md = ARCHITECTURE.md
+		TASK.md = TASK.md
+		rules.md = rules.md
+		CLAUDE.md = CLAUDE.md
+	EndProjectSection
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Domain", "src\CharityPay.Domain\CharityPay.Domain.csproj", "{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Application", "src\CharityPay.Application\CharityPay.Application.csproj", "{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Infrastructure", "src\CharityPay.Infrastructure\CharityPay.Infrastructure.csproj", "{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.API", "src\CharityPay.API\CharityPay.API.csproj", "{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Domain.Tests", "tests\CharityPay.Domain.Tests\CharityPay.Domain.Tests.csproj", "{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Application.Tests", "tests\CharityPay.Application.Tests\CharityPay.Application.Tests.csproj", "{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.Infrastructure.Tests", "tests\CharityPay.Infrastructure.Tests\CharityPay.Infrastructure.Tests.csproj", "{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47}"
+EndProject
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharityPay.API.Tests", "tests\CharityPay.API.Tests\CharityPay.API.Tests.csproj", "{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48}"
+EndProject
+
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+
+	GlobalSection(NestedProjects) = preSolution
+		{11112717D-0F34-4D22-9F8E-1E8F9D8A0C41} = {8BB2717D-0F34-4D22-9F8E-1E8F9D8A0C3E}
+		{22222717D-0F34-4D22-9F8E-1E8F9D8A0C42} = {8BB2717D-0F34-4D22-9F8E-1E8F9D8A0C3E}
+		{33332717D-0F34-4D22-9F8E-1E8F9D8A0C43} = {8BB2717D-0F34-4D22-9F8E-1E8F9D8A0C3E}
+		{44442717D-0F34-4D22-9F8E-1E8F9D8A0C44} = {8BB2717D-0F34-4D22-9F8E-1E8F9D8A0C3E}
+		{55552717D-0F34-4D22-9F8E-1E8F9D8A0C45} = {9DD2717D-0F34-4D22-9F8E-1E8F9D8A0C3F}
+		{66662717D-0F34-4D22-9F8E-1E8F9D8A0C46} = {9DD2717D-0F34-4D22-9F8E-1E8F9D8A0C3F}
+		{77772717D-0F34-4D22-9F8E-1E8F9D8A0C47} = {9DD2717D-0F34-4D22-9F8E-1E8F9D8A0C3F}
+		{88882717D-0F34-4D22-9F8E-1E8F9D8A0C48} = {9DD2717D-0F34-4D22-9F8E-1E8F9D8A0C3F}
+	EndGlobalSection
+
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
