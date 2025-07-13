@@ -45,9 +45,8 @@ services:
   # CharityPay API
   charitypay-api:
     build:
-      context: .
+      context: ./src/CharityPay.API
       dockerfile: Dockerfile
-      target: production
     container_name: charitypay-api
     restart: unless-stopped
     ports:
