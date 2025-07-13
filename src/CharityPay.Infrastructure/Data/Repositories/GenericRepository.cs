@@ -21,19 +21,16 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync(cancellationToken);
+        return predicate == null
+            ? await _dbSet.ToListAsync(cancellationToken)
+            : await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(expression).ToListAsync(cancellationToken);
-    }
-
-    public async Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.SingleOrDefaultAsync(expression, cancellationToken);
+        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -61,16 +58,21 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet.Update(entity);
     }
 
-    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? expression = null, CancellationToken cancellationToken = default)
+    public void UpdateRange(IEnumerable<TEntity> entities)
     {
-        return expression == null
-            ? await _dbSet.CountAsync(cancellationToken)
-            : await _dbSet.CountAsync(expression, cancellationToken);
+        _dbSet.UpdateRange(entities);
     }
 
-    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken = default)
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(expression, cancellationToken);
+        return predicate == null
+            ? await _dbSet.CountAsync(cancellationToken)
+            : await _dbSet.CountAsync(predicate, cancellationToken);
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AnyAsync(predicate, cancellationToken);
     }
 
     public IQueryable<TEntity> GetQueryable()

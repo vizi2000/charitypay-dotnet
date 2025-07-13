@@ -7,13 +7,14 @@ public sealed class Payment : Entity
 {
     private Payment() { } // For EF Core
 
-    private Payment(Guid id, decimal amount, PaymentMethod method, string? donorEmail, string? donorName,
-        Guid organizationId) : base(id)
+    private Payment(Guid id, decimal amount, PaymentMethod method, string donorName, string? donorEmail, 
+        string? donorPhone, Guid organizationId) : base(id)
     {
         Amount = amount;
         Method = method;
-        DonorEmail = donorEmail;
         DonorName = donorName;
+        DonorEmail = donorEmail;
+        DonorPhone = donorPhone;
         OrganizationId = organizationId;
         Status = PaymentStatus.Pending;
         CreatedAt = DateTimeOffset.UtcNow;
@@ -22,8 +23,10 @@ public sealed class Payment : Entity
     public decimal Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public PaymentMethod Method { get; private set; }
+    public PaymentMethod PaymentMethod => Method; // Alias for compatibility
+    public string DonorName { get; private set; } = "Anonymous";
     public string? DonorEmail { get; private set; }
-    public string? DonorName { get; private set; }
+    public string? DonorPhone { get; private set; }
     public Guid OrganizationId { get; private set; }
     public string? FiservOrderId { get; private set; }
     public string? FiservCheckoutId { get; private set; }
@@ -34,10 +37,10 @@ public sealed class Payment : Entity
     // Navigation properties
     public Organization Organization { get; private set; } = null!;
 
-    public static Payment Create(decimal amount, PaymentMethod method, string? donorEmail, string? donorName,
-        Guid organizationId)
+    public static Payment Create(decimal amount, PaymentMethod method, Guid organizationId,
+        string donorName, string? donorEmail = null, string? donorPhone = null)
     {
-        return new Payment(Guid.NewGuid(), amount, method, donorEmail, donorName, organizationId);
+        return new Payment(Guid.NewGuid(), amount, method, donorName, donorEmail, donorPhone, organizationId);
     }
 
     public void UpdateFiservDetails(string? orderId, string? checkoutId, string? redirectUrl)

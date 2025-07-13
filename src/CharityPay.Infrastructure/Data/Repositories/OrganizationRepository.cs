@@ -119,8 +119,40 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
         var organization = await _dbSet.FindAsync(new object[] { organizationId }, cancellationToken);
         if (organization != null)
         {
-            organization.CollectedAmount += amount;
+            organization.UpdateCollectedAmount(amount);
             _dbSet.Update(organization);
         }
+    }
+
+    public async Task<(IEnumerable<Organization> Organizations, int TotalCount)> GetApprovedPaginatedAsync(
+        int page, 
+        int pageSize, 
+        CancellationToken cancellationToken = default)
+    {
+        var skip = (page - 1) * pageSize;
+        var query = _dbSet.Where(o => o.Status == OrganizationStatus.Approved);
+        
+        var totalCount = await query.CountAsync(cancellationToken);
+        var organizations = await query
+            .OrderBy(o => o.Name)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (organizations, totalCount);
+    }
+
+    public async Task<IEnumerable<Organization>> SearchByNameAsync(string searchTerm, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(o => o.Name.Contains(searchTerm) && o.Status == OrganizationStatus.Approved)
+            .OrderBy(o => o.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<OrganizationAnalytics?> GetAnalyticsAsync(Guid organizationId, CancellationToken cancellationToken = default)
+    {
+        return await _context.OrganizationAnalytics
+            .FirstOrDefaultAsync(a => a.OrganizationId == organizationId, cancellationToken);
     }
 }

@@ -24,7 +24,7 @@ dotnet build
 
 # Run API (development)
 cd src/CharityPay.API
-dotnet run                        # Runs on https://localhost:7001
+dotnet run                        # Runs on https://localhost:5001, http://localhost:5000
 
 # Run with hot reload
 dotnet watch run                  # Auto-restart on file changes
@@ -34,7 +34,7 @@ dotnet test                       # All tests
 dotnet test --logger "console;verbosity=detailed"  # Verbose output
 dotnet test /p:CollectCoverage=true  # With coverage
 
-# Database operations
+# Database operations (when EF Core is implemented)
 dotnet ef migrations add MigrationName -p src/CharityPay.Infrastructure -s src/CharityPay.API
 dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
 dotnet ef migrations remove -p src/CharityPay.Infrastructure -s src/CharityPay.API
@@ -47,9 +47,8 @@ npm install
 npm run dev                       # Development server on port 5173
 npm run build                     # Production build
 npm run preview                   # Preview production build
-npm run lint                      # ESLint (when configured)
-npm test                          # Vitest unit tests
-npm run test:e2e                  # Playwright E2E tests
+npm run lint                      # ESLint
+# Note: Test framework not yet configured
 ```
 
 ### Docker Development
@@ -101,30 +100,23 @@ dotnet run -c Release --project src/CharityPay.API
 ```
 src/
 ├── CharityPay.Domain/           # Core business entities and interfaces
-│   ├── Entities/                # Domain entities (User, Organization, Payment)
-│   ├── Enums/                   # Domain enums (one per file)
-│   ├── ValueObjects/            # Value objects (Money, EmailAddress)
-│   ├── Events/                  # Domain events
-│   ├── Services/                # Domain service interfaces
-│   └── Repositories/            # Repository interfaces
+│   ├── Entities/                # Domain entities (User, Organization, Payment, IoT)
+│   ├── Enums/                   # Domain enums (UserRole, PaymentStatus, etc.)
+│   └── Shared/                  # Base classes (Entity, Error)
 ├── CharityPay.Application/      # Business logic and use cases
-│   ├── UseCases/                # CQRS commands and queries
-│   ├── DTOs/                    # Data transfer objects
-│   ├── Mappings/                # AutoMapper profiles
-│   ├── Validators/              # FluentValidation rules
-│   └── Services/                # Application service interfaces
+│   └── (Currently empty - structure to be implemented)
 ├── CharityPay.Infrastructure/   # Data access and external services
 │   ├── Data/                    # EF Core DbContext and configurations
-│   ├── Repositories/            # Repository implementations
-│   ├── Services/                # External service integrations
-│   ├── Identity/                # ASP.NET Core Identity configuration
-│   └── Caching/                 # Caching implementations
+│   │   ├── Configurations/      # Entity configurations
+│   │   ├── Migrations/          # EF Core migrations
+│   │   └── Repositories/        # Repository implementations
+│   └── Logging/                 # Logging configuration
 └── CharityPay.API/              # Web API layer
-    ├── Endpoints/               # Minimal API endpoints
-    ├── Middleware/              # Custom middleware
-    ├── Models/                  # API-specific models
-    ├── Filters/                 # Action filters
-    └── Configuration/           # DI and service configuration
+    ├── Controllers/             # MVC controllers (demo endpoints)
+    └── (Minimal APIs structure to be implemented)
+
+tests/                           # Test projects (xUnit structure ready)
+frontend/                        # React TypeScript frontend
 ```
 
 #### API Structure
@@ -135,14 +127,15 @@ src/
 - **Versioning**: URL path versioning
 
 ### Frontend (React + TypeScript)
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite for fast development and building
-- **Styling**: Tailwind CSS v4 with custom design system
-- **Routing**: React Router v6 with protected routes
+- **Styling**: Tailwind CSS v3 with custom design system
+- **Routing**: React Router v7 with protected routes
 - **State Management**: React Context API with useReducer
-- **Forms**: React Hook Form with validation
+- **Icons**: Heroicons React
 - **HTTP Client**: Axios with TypeScript interfaces
-- **Testing**: Vitest for unit tests, Playwright for E2E
+- **QR Code**: qrcode.js for QR code generation
+- **Testing**: Framework to be configured
 
 ### Key Data Models
 
@@ -232,12 +225,13 @@ src/
 
 ### Current Development Status
 - **Backend Foundation**: ✅ Clean Architecture structure established
-- **Domain Models**: ✅ Entity design completed
-- **Database Layer**: 🚧 EF Core configuration in progress
-- **Authentication**: ⏳ JWT and Identity setup pending
-- **API Endpoints**: ⏳ Implementation starting
+- **Domain Models**: ✅ Entity design completed with base entities and enums
+- **Database Layer**: ✅ EF Core DbContext and basic repositories implemented
+- **Basic API**: ✅ Simple controllers and demo endpoints working
+- **Frontend**: ✅ React TypeScript frontend with routing and auth context
+- **Authentication**: ⏳ JWT and Identity integration pending
+- **Full API Endpoints**: ⏳ Complete CRUD operations in progress
 - **Payment Integration**: ⏳ Fiserv client development
-- **Frontend Migration**: ⏳ TypeScript conversion planned
 - **Testing**: ⏳ Comprehensive test suite development
 
 ## Code Conventions

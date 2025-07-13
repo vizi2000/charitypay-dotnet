@@ -167,4 +167,48 @@ public class PaymentRepository : GenericRepository<Payment>, IPaymentRepository
                        p.CreatedAt < tomorrow)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<(IEnumerable<Payment> Payments, int TotalCount)> GetByOrganizationPaginatedAsync(
+        Guid organizationId, 
+        int page, 
+        int pageSize, 
+        CancellationToken cancellationToken = default)
+    {
+        var skip = (page - 1) * pageSize;
+        var query = _dbSet.Where(p => p.OrganizationId == organizationId);
+        
+        var totalCount = await query.CountAsync(cancellationToken);
+        var payments = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (payments, totalCount);
+    }
+
+    public async Task<Payment?> GetByExternalTransactionIdAsync(string externalTransactionId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .FirstOrDefaultAsync(p => p.FiservOrderId == externalTransactionId, cancellationToken);
+    }
+
+    public async Task<(decimal TotalAmount, int TotalCount, int CompletedCount)> GetStatisticsAsync(
+        Guid organizationId, 
+        DateTime fromDate, 
+        DateTime toDate, 
+        CancellationToken cancellationToken = default)
+    {
+        var payments = await _dbSet
+            .Where(p => p.OrganizationId == organizationId && 
+                       p.CreatedAt >= fromDate && 
+                       p.CreatedAt <= toDate)
+            .ToListAsync(cancellationToken);
+
+        var totalAmount = payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount);
+        var totalCount = payments.Count;
+        var completedCount = payments.Count(p => p.Status == PaymentStatus.Completed);
+
+        return (totalAmount, totalCount, completedCount);
+    }
 }

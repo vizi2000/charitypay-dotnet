@@ -1,3 +1,4 @@
+using CharityPay.Application.Abstractions;
 using CharityPay.Application.Abstractions.Repositories;
 using CharityPay.Infrastructure.Data.Repositories;
 
@@ -15,9 +16,9 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
     }
 
-    public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
-    public IOrganizationRepository OrganizationRepository => _organizationRepository ??= new OrganizationRepository(_context);
-    public IPaymentRepository PaymentRepository => _paymentRepository ??= new PaymentRepository(_context);
+    public IUserRepository Users => _userRepository ??= new UserRepository(_context);
+    public IOrganizationRepository Organizations => _organizationRepository ??= new OrganizationRepository(_context);
+    public IPaymentRepository Payments => _paymentRepository ??= new PaymentRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

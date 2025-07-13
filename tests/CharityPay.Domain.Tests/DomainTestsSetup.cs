@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace CharityPay.Domain.Tests;
 
 /// <summary>

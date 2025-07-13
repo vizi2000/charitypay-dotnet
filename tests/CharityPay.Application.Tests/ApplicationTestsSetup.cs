@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace CharityPay.Application.Tests;
 
 /// <summary>
