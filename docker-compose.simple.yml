@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  # React Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: charitypay-frontend-simple
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    networks:
+      - charitypay-network
+    restart: unless-stopped
+    depends_on:
+      - api
+
   # .NET API Application
   api:
     build:

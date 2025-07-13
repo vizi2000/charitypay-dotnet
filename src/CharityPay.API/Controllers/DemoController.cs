@@ -15,33 +15,70 @@ public class DemoController : ControllerBase
             { 
                 id = 1, 
                 name = "Parafia Św. Jana", 
-                description = "Parafia w centrum miasta",
+                description = "Parafia w centrum miasta. Wspieramy lokalne inicjatywy charytatywne i pomagamy potrzebującym w naszej wspólnocie.",
                 status = "approved",
-                collected_amount = 15000.50m
+                collected_amount = 15000.50m,
+                target_amount = 50000.00m,
+                category = "religia",
+                location = "Warszawa",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-30)
             },
             new 
             { 
                 id = 2, 
                 name = "Caritas Warszawa", 
-                description = "Organizacja charytatywna",
+                description = "Organizacja charytatywna pomagająca osobom w trudnej sytuacji życiowej. Prowadzimy jadłodajnie, schroniska i programy wsparcia.",
                 status = "approved", 
-                collected_amount = 25000.00m
+                collected_amount = 25000.00m,
+                target_amount = 100000.00m,
+                category = "inne",
+                location = "Warszawa",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-45)
             },
             new 
             { 
                 id = 3, 
                 name = "Parafia Matki Boskiej", 
-                description = "Lokalna parafia",
-                status = "pending",
-                collected_amount = 5000.00m
+                description = "Lokalna parafia organizująca wydarzenia charytatywne dla dzieci i seniorów z naszej dzielnicy.",
+                status = "approved",
+                collected_amount = 8500.00m,
+                target_amount = 30000.00m,
+                category = "religia",
+                location = "Kraków",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-15)
+            },
+            new 
+            { 
+                id = 4, 
+                name = "Fundacja Pomocy Dzieciom", 
+                description = "Wspieramy dzieci z rodzin w trudnej sytuacji materialnej, organizujemy zajęcia edukacyjne i terapeutyczne.",
+                status = "approved",
+                collected_amount = 12300.75m,
+                target_amount = 40000.00m,
+                category = "dzieci",
+                location = "Gdańsk",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-20)
+            },
+            new 
+            { 
+                id = 5, 
+                name = "Schronisko dla Zwierząt", 
+                description = "Opiekujemy się bezdomnymi zwierzętami, zapewniamy im opiekę weterynaryjną i szukamy nowych domów.",
+                status = "approved",
+                collected_amount = 6800.25m,
+                target_amount = 25000.00m,
+                category = "zwierzeta",
+                location = "Wrocław",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-10)
             }
         };
 
-        return Ok(new { 
-            data = demoOrganizations,
-            total = demoOrganizations.Length,
-            message = "CharityPay .NET API - Demo organizations data"
-        });
+        return Ok(demoOrganizations);
     }
 
     [HttpGet("payments")]
