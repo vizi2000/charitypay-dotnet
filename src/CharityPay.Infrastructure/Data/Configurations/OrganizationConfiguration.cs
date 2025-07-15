@@ -63,7 +63,7 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .IsRequired()
             .HasMaxLength(20)
             .HasConversion<string>()
-            .HasDefaultValue("pending");
+            .HasDefaultValue(OrganizationStatus.Pending);
             
         builder.Property(o => o.CreatedAt)
             .IsRequired();

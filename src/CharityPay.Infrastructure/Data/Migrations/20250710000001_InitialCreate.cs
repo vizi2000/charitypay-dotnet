@@ -48,7 +48,7 @@ public partial class InitialCreate : Migration
                 PrimaryColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: true),
                 SecondaryColor = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: true),
                 CustomMessage = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "pending"),
+                Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Pending"),
                 AdminNotes = table.Column<string>(type: "text", nullable: true),
                 UserId = table.Column<Guid>(type: "uuid", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -71,7 +71,7 @@ public partial class InitialCreate : Migration
             {
                 Id = table.Column<Guid>(type: "uuid", nullable: false),
                 Amount = table.Column<decimal>(type: "numeric(15,2)", precision: 15, scale: 2, nullable: false),
-                Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "pending"),
+                Status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "Pending"),
                 Method = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                 DonorEmail = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: true),
                 DonorName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),

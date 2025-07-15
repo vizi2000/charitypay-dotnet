@@ -33,11 +33,11 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [ ] **CS-017:** Create domain service interfaces
 
 ### Enums (One File Per Enum)
-- [ ] **CS-018:** PaymentStatus.cs enum
-- [ ] **CS-019:** PaymentMethod.cs enum
-- [ ] **CS-020:** OrganizationCategory.cs enum
-- [ ] **CS-021:** UserRole.cs enum
-- [ ] **CS-022:** OrganizationStatus.cs enum
+- [x] **CS-018:** PaymentStatus.cs enum
+- [x] **CS-019:** PaymentMethod.cs enum
+- [x] **CS-020:** OrganizationCategory.cs enum
+- [x] **CS-021:** UserRole.cs enum
+- [x] **CS-022:** OrganizationStatus.cs enum
 
 ### Data Access
 - [ ] **CS-023:** Create CharityPayDbContext with configurations
@@ -175,7 +175,7 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [ ] **CS-111:** File upload tests
 
 ### Testing Infrastructure
-- [ ] **CS-112:** Test data builders
+- [x] **CS-112:** Test data builders
 - [ ] **CS-113:** In-memory database for tests
 - [ ] **CS-114:** Mock service implementations
 - [ ] **CS-115:** Test fixtures and helpers
@@ -255,3 +255,42 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - <200ms API response time (p95)
 - Zero data loss during migration
 - Improved developer experience
+
+## Remaining TODOs from Code Review
+
+### High Priority - Blocking Issues
+- [x] **FIX-001:** Fix entity configuration default values (OrganizationStatus.Pending and PaymentStatus.Pending)
+- [x] **FIX-002:** Create missing OrganizationCategory enum
+- [x] **FIX-003:** Fix test method names (GetOrganizationByUserIdAsync to GetMyOrganizationAsync)
+- [x] **FIX-004:** Create TestDataBuilder infrastructure for tests
+
+### Medium Priority - Feature Implementation
+- [ ] **TODO-001:** Implement refresh token functionality in AuthenticationService
+  - Location: `src/CharityPay.Application/Services/AuthenticationService.cs:103`
+  - Current: Throws NotImplementedException
+  - Required: Token storage, validation, and user lookup
+
+- [ ] **TODO-002:** Implement logout token invalidation
+  - Location: `src/CharityPay.Application/Services/AuthenticationService.cs:126`
+  - Current: Empty implementation
+  - Required: Refresh token invalidation logic
+
+- [ ] **TODO-003:** Integrate Fiserv payment gateway
+  - Location: `src/CharityPay.Application/Services/PaymentService.cs:55`
+  - Current: Mock implementation returning test URL
+  - Required: Full Fiserv API integration
+
+- [ ] **TODO-004:** Implement Fiserv webhook processing
+  - Location: `src/CharityPay.Application/Services/PaymentService.cs:128`
+  - Current: Empty implementation
+  - Required: Signature verification, payload parsing, status updates
+
+- [ ] **TODO-005:** Implement admin statistics endpoint
+  - Location: `src/CharityPay.API/Controllers/AdminController.cs:82`
+  - Current: Returns placeholder data
+  - Required: Aggregate statistics from database
+
+### Low Priority - Documentation
+- [ ] **DOC-001:** Update all references from .NET 8 to match project files (currently all target .NET 8)
+- [ ] **DOC-002:** Document test data builder usage patterns
+- [ ] **DOC-003:** Add integration test examples with new builders

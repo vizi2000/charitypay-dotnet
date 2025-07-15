@@ -19,7 +19,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsRequired()
             .HasMaxLength(20)
             .HasConversion<string>()
-            .HasDefaultValue("pending");
+            .HasDefaultValue(PaymentStatus.Pending);
             
         builder.Property(p => p.Method)
             .IsRequired()

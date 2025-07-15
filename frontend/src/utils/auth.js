@@ -1,6 +1,6 @@
 // Authentication utilities for frontend
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api/v1';
 
 // Token management
 export const getToken = () => {
@@ -55,7 +55,7 @@ export const isOrganization = () => {
 // API functions
 export const login = async (email, password) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth-demo/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export const login = async (email, password) => {
 
 export const getCurrentUser = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const response = await fetch(`${API_BASE_URL}/auth-demo/me`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });

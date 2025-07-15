@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CharityPay.Domain.Entities;
+using CharityPay.Domain.Enums;
 using CharityPay.Domain.Shared;
 using CharityPay.Infrastructure.Data.Configurations;
 using System.Reflection;
@@ -54,7 +55,7 @@ public class CharityPayDbContext : DbContext
             entity.Property(e => e.PrimaryColor).HasMaxLength(7);
             entity.Property(e => e.SecondaryColor).HasMaxLength(7);
             entity.Property(e => e.CustomMessage).HasMaxLength(1000);
-            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasConversion<string>().HasDefaultValue("pending");
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasConversion<string>().HasDefaultValue(OrganizationStatus.Pending);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.HasIndex(e => e.Status);
@@ -70,7 +71,7 @@ public class CharityPayDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Amount).HasPrecision(15, 2);
-            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasConversion<string>().HasDefaultValue("pending");
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasConversion<string>().HasDefaultValue(PaymentStatus.Pending);
             entity.Property(e => e.Method).IsRequired().HasMaxLength(20).HasConversion<string>();
             entity.Property(e => e.DonorEmail).HasMaxLength(254);
             entity.Property(e => e.DonorName).HasMaxLength(100);

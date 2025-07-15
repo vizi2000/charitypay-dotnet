@@ -1,6 +1,6 @@
 using CharityPay.API;
+using CharityPay.API.Tests.Builders;
 using CharityPay.Application.DTOs.Auth;
-using CharityPay.Domain.Tests.Builders;
 using CharityPay.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -57,14 +57,14 @@ public class CharityPayWebApplicationFactory : WebApplicationFactory<Program>, I
         builder.ConfigureServices(services =>
         {
             // Remove the existing DbContext registration
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<CharityPayDbContext>));
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
 
             // Add test database context
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContext<CharityPayDbContext>(options =>
                 options.UseNpgsql(ConnectionString));
 
             // Configure logging for tests
@@ -127,7 +127,7 @@ public class ApiTestFixture : IAsyncLifetime
 
         // Apply migrations and seed initial data
         using var scope = _factory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<CharityPayDbContext>();
         await context.Database.MigrateAsync();
         await SeedTestDataAsync(context);
     }
@@ -144,7 +144,7 @@ public class ApiTestFixture : IAsyncLifetime
     /// <summary>
     /// Seeds the database with test data for API testing
     /// </summary>
-    private async Task SeedTestDataAsync(ApplicationDbContext context)
+    private async Task SeedTestDataAsync(CharityPayDbContext context)
     {
         // Create admin user
         var adminUser = TestDataBuilders.User()
@@ -300,7 +300,7 @@ public class ApiTestFixture : IAsyncLifetime
     public async Task ClearDatabaseAsync()
     {
         using var scope = _factory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<CharityPayDbContext>();
         
         context.Payments.RemoveRange(context.Payments);
         context.Organizations.RemoveRange(context.Organizations);
@@ -312,7 +312,7 @@ public class ApiTestFixture : IAsyncLifetime
     /// <summary>
     /// Gets the database context for direct database operations in tests
     /// </summary>
-    public ApplicationDbContext GetDbContext()
+    public CharityPayDbContext GetDbContext()
     {
         var scope = _factory.CreateScope();
         return scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

@@ -1,9 +1,9 @@
 using CharityPay.Application.DTOs.Organization;
 using CharityPay.Application.Services;
+using CharityPay.Application.Tests.Builders;
 using CharityPay.Application.Tests.Fixtures;
 using CharityPay.Domain.Entities;
 using CharityPay.Domain.Enums;
-using CharityPay.Domain.Tests.Builders;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -108,7 +108,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     }
 
     [UnitTest]
-    public async Task GetOrganizationByUserIdAsync_WithValidUserId_ShouldReturnOrganization()
+    public async Task GetMyOrganizationAsync_WithValidUserId_ShouldReturnOrganization()
     {
         // Arrange
         var user = TestDataBuilders.User().AsOrganization().Build();
@@ -121,7 +121,7 @@ public class OrganizationServiceTests : ApplicationTestBase
         await DbContext.SaveChangesAsync();
 
         // Act
-        var result = await _organizationService.GetOrganizationByUserIdAsync(user.Id);
+        var result = await _organizationService.GetMyOrganizationAsync(user.Id, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -130,13 +130,13 @@ public class OrganizationServiceTests : ApplicationTestBase
     }
 
     [UnitTest]
-    public async Task GetOrganizationByUserIdAsync_WithInvalidUserId_ShouldReturnNull()
+    public async Task GetMyOrganizationAsync_WithInvalidUserId_ShouldReturnNull()
     {
         // Arrange
         var nonExistentUserId = "non-existent-user";
 
         // Act
-        var result = await _organizationService.GetOrganizationByUserIdAsync(nonExistentUserId);
+        var result = await _organizationService.GetMyOrganizationAsync(nonExistentUserId, CancellationToken.None);
 
         // Assert
         result.Should().BeNull();

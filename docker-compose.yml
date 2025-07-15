@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-charitypay_password_2024}
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d
@@ -30,7 +30,7 @@ services:
     container_name: charitypay-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -45,13 +45,14 @@ services:
   # CharityPay API
   charitypay-api:
     build:
-      context: ./src/CharityPay.API
+      context: .
       dockerfile: Dockerfile
+      target: production
     container_name: charitypay-api
     restart: unless-stopped
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8081:80"
+      - "8444:443"
     environment:
       # Database
       ConnectionStrings__DefaultConnection: "Host=charitypay-db;Port=5432;Database=charitypay;Username=charitypay_user;Password=${DB_PASSWORD:-charitypay_password_2024};SSL Mode=Prefer;Trust Server Certificate=true"
@@ -102,6 +103,28 @@ services:
       retries: 3
       start_period: 60s
 
+  # Frontend (React + Vite)
+  charitypay-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: charitypay-frontend
+    restart: unless-stopped
+    ports:
+      - "5174:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8081/api/v1
+    volumes:
+      - ./frontend/src:/app/src:cached
+      - ./frontend/public:/app/public:cached
+      - ./frontend/index.html:/app/index.html:cached
+      - ./frontend/vite.config.js:/app/vite.config.js:cached
+      - /app/node_modules
+    networks:
+      - charitypay-network
+    depends_on:
+      - charitypay-api
+
   # Nginx Reverse Proxy
   charitypay-nginx:
     image: nginx:alpine
@@ -151,7 +174,7 @@ services:
     container_name: charitypay-grafana
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       GF_SECURITY_ADMIN_USER: "${GRAFANA_USER:-admin}"
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_PASSWORD:-admin123}"
@@ -182,6 +205,3 @@ volumes:
 networks:
   charitypay-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

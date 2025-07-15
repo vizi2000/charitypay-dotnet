@@ -43,6 +43,10 @@ COPY src/CharityPay.Domain/*.csproj ./src/CharityPay.Domain/
 COPY src/CharityPay.Application/*.csproj ./src/CharityPay.Application/
 COPY src/CharityPay.Infrastructure/*.csproj ./src/CharityPay.Infrastructure/
 COPY src/CharityPay.API/*.csproj ./src/CharityPay.API/
+COPY tests/CharityPay.Domain.Tests/*.csproj ./tests/CharityPay.Domain.Tests/
+COPY tests/CharityPay.Application.Tests/*.csproj ./tests/CharityPay.Application.Tests/
+COPY tests/CharityPay.Infrastructure.Tests/*.csproj ./tests/CharityPay.Infrastructure.Tests/
+COPY tests/CharityPay.API.Tests/*.csproj ./tests/CharityPay.API.Tests/
 
 # Restore packages
 RUN dotnet restore

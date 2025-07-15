@@ -2,7 +2,7 @@ using AutoMapper;
 using CharityPay.Application.Mappings;
 using CharityPay.Application.Services;
 using CharityPay.Application.Services.Interfaces;
-using CharityPay.Domain.Tests.Builders;
+using CharityPay.Application.Tests.Builders;
 using CharityPay.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

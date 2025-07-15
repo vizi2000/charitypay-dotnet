@@ -89,15 +89,16 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configure CORS
-var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5173" };
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:5174", "http://localhost:5173", "http://localhost:3000" };
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowLocalhost", policy =>
     {
         policy.WithOrigins(corsOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -153,8 +154,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// CORS must be before other middleware
+app.UseCors("AllowLocalhost");
+
 app.UseSecurityHeaders();
-app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -178,5 +181,24 @@ app.MapGet("/", () => new
 });
 
 // Health endpoint is handled by HealthController
+
+// Apply migrations on startup in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<CharityPayDbContext>();
+    try
+    {
+        // For development, just ensure the database schema is created
+        // This bypasses migrations but creates tables based on the current model
+        await dbContext.Database.EnsureDeletedAsync(); // Clean slate for dev
+        await dbContext.Database.EnsureCreatedAsync();
+        app.Logger.LogInformation("Database schema created successfully");
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "An error occurred while creating the database: {Message}", ex.Message);
+    }
+}
 
 app.Run();

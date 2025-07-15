@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Override for local development
+  charitypay-api:
+    build:
+      target: development
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Enable hot reload
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      DOTNET_WATCH_SUPPRESS_EMOJIS: "true"
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src:cached
+      - ./tests:/app/tests:cached
+      # Exclude obj and bin directories
+      - /app/src/CharityPay.API/obj
+      - /app/src/CharityPay.API/bin
+      - /app/src/CharityPay.Domain/obj
+      - /app/src/CharityPay.Domain/bin
+      - /app/src/CharityPay.Application/obj
+      - /app/src/CharityPay.Application/bin
+      - /app/src/CharityPay.Infrastructure/obj
+      - /app/src/CharityPay.Infrastructure/bin
+    command: dotnet watch run --urls http://+:80
+
+  # Skip nginx in development
+  charitypay-nginx:
+    profiles:
+      - production
+
+  # Skip monitoring in development
+  charitypay-prometheus:
+    profiles:
+      - monitoring
+
+  charitypay-grafana:
+    profiles:
+      - monitoring
