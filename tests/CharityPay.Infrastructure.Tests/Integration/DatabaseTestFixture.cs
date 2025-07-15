@@ -16,7 +16,7 @@ public class DatabaseTestFixture : IAsyncLifetime
     private readonly PostgreSqlContainer _postgres;
     private IServiceProvider _serviceProvider;
 
-    public ApplicationDbContext DbContext { get; private set; }
+    public CharityPayDbContext DbContext { get; private set; }
     public string ConnectionString { get; private set; }
 
     public DatabaseTestFixture()
@@ -50,7 +50,7 @@ public class DatabaseTestFixture : IAsyncLifetime
         services.AddSingleton<IConfiguration>(configuration);
 
         // Add DbContext with real PostgreSQL
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<CharityPayDbContext>(options =>
             options.UseNpgsql(ConnectionString));
 
         // Add logging
@@ -61,7 +61,7 @@ public class DatabaseTestFixture : IAsyncLifetime
         });
 
         _serviceProvider = services.BuildServiceProvider();
-        DbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+        DbContext = _serviceProvider.GetRequiredService<CharityPayDbContext>();
 
         // Apply migrations
         await DbContext.Database.MigrateAsync();
@@ -136,7 +136,7 @@ public class DatabaseTestCollection : ICollectionFixture<DatabaseTestFixture>
 public abstract class DatabaseTestBase : IAsyncLifetime
 {
     protected readonly DatabaseTestFixture Fixture;
-    protected readonly ApplicationDbContext DbContext;
+    protected readonly CharityPayDbContext DbContext;
 
     protected DatabaseTestBase(DatabaseTestFixture fixture)
     {
@@ -157,7 +157,7 @@ public abstract class DatabaseTestBase : IAsyncLifetime
     /// <summary>
     /// Executes a function within a database transaction that is rolled back
     /// </summary>
-    protected async Task<T> ExecuteInTransactionAsync<T>(Func<ApplicationDbContext, Task<T>> action)
+    protected async Task<T> ExecuteInTransactionAsync<T>(Func<CharityPayDbContext, Task<T>> action)
     {
         using var transaction = await DbContext.Database.BeginTransactionAsync();
         try
@@ -176,7 +176,7 @@ public abstract class DatabaseTestBase : IAsyncLifetime
     /// <summary>
     /// Executes an action within a database transaction that is rolled back
     /// </summary>
-    protected async Task ExecuteInTransactionAsync(Func<ApplicationDbContext, Task> action)
+    protected async Task ExecuteInTransactionAsync(Func<CharityPayDbContext, Task> action)
     {
         using var transaction = await DbContext.Database.BeginTransactionAsync();
         try
@@ -229,7 +229,7 @@ public class DatabasePerformanceFixture : DatabaseTestFixture
     /// <summary>
     /// Measures the execution time of a database operation
     /// </summary>
-    public async Task<T> MeasureAsync<T>(Func<ApplicationDbContext, Task<T>> operation, string operationName = null)
+    public async Task<T> MeasureAsync<T>(Func<CharityPayDbContext, Task<T>> operation, string operationName = null)
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var result = await operation(DbContext);
@@ -275,7 +275,7 @@ public static class DatabaseTestDataHelper
     /// <summary>
     /// Seeds the database with a realistic test dataset
     /// </summary>
-    public static async Task SeedRealisticDataAsync(ApplicationDbContext context)
+    public static async Task SeedRealisticDataAsync(CharityPayDbContext context)
     {
         // Create admin user
         var adminUser = CharityPay.Domain.Tests.Builders.TestDataBuilders.User()
@@ -325,7 +325,7 @@ public static class DatabaseTestDataHelper
     /// <summary>
     /// Creates a large dataset for performance testing
     /// </summary>
-    public static async Task SeedLargeDatasetAsync(ApplicationDbContext context, int organizationCount = 100, int paymentsPerOrg = 50)
+    public static async Task SeedLargeDatasetAsync(CharityPayDbContext context, int organizationCount = 100, int paymentsPerOrg = 50)
     {
         // Create organizations in batches
         const int batchSize = 20;
