@@ -10,8 +10,8 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 ### Initial Setup
 - [x] **CS-001:** Create new repository 'charitypay-dotnet'
 - [x] **CS-002:** Setup solution structure with Clean Architecture
-- [ ] **CS-003:** Configure development environment files (appsettings.json, Docker)
-- [ ] **CS-004:** Setup Entity Framework Core with migrations
+- [x] **CS-003:** Configure development environment files (appsettings.json, Docker) ✅ DONE
+- [x] **CS-004:** Setup Entity Framework Core with migrations ✅ DONE (using EnsureCreated for now)
 - [ ] **CS-005:** Create base repository and unit of work patterns
 - [ ] **CS-006:** Setup structured logging with Serilog
 - [ ] **CS-007:** Configure global exception handling middleware
@@ -26,9 +26,9 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 ## Phase 2: Domain Models & Data Layer
 
 ### Domain Entities
-- [ ] **CS-013:** Create User entity with identity integration
-- [ ] **CS-014:** Create Organization entity with DDD principles
-- [ ] **CS-015:** Create Payment entity and value objects
+- [x] **CS-013:** Create User entity with identity integration ✅ DONE
+- [x] **CS-014:** Create Organization entity with DDD principles ✅ DONE
+- [x] **CS-015:** Create Payment entity and value objects ✅ DONE
 - [ ] **CS-016:** Define domain events (PaymentCompleted, etc.)
 - [ ] **CS-017:** Create domain service interfaces
 
@@ -40,21 +40,21 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [x] **CS-022:** OrganizationStatus.cs enum
 
 ### Data Access
-- [ ] **CS-023:** Create CharityPayDbContext with configurations
-- [ ] **CS-024:** Entity configurations (one file per entity)
+- [x] **CS-023:** Create CharityPayDbContext with configurations ✅ DONE
+- [x] **CS-024:** Entity configurations (one file per entity) ✅ DONE
 - [ ] **CS-025:** Repository interfaces in Domain layer
-- [ ] **CS-026:** Repository implementations in Infrastructure
-- [ ] **CS-027:** Unit of Work pattern implementation
-- [ ] **CS-028:** Database seeding for development
+- [x] **CS-026:** Repository implementations in Infrastructure ✅ DONE
+- [x] **CS-027:** Unit of Work pattern implementation ✅ DONE
+- [x] **CS-028:** Database seeding for development ✅ DONE
 - [ ] **CS-029:** JSON to database migration tool
 
 ## Phase 3: Application Layer & Business Logic
 
 ### DTOs and Mapping
-- [ ] **CS-030:** Create OrganizationDto and related DTOs
-- [ ] **CS-031:** Create PaymentDto and related DTOs
-- [ ] **CS-032:** Create UserDto and AuthDto
-- [ ] **CS-033:** AutoMapper profiles configuration
+- [x] **CS-030:** Create OrganizationDto and related DTOs ✅ DONE
+- [x] **CS-031:** Create PaymentDto and related DTOs ✅ DONE
+- [x] **CS-032:** Create UserDto and AuthDto ✅ DONE
+- [x] **CS-033:** AutoMapper profiles configuration ✅ DONE
 - [ ] **CS-034:** Response envelope models (ApiResponse, etc.)
 
 ### Validation
@@ -64,12 +64,12 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [ ] **CS-038:** Custom validation rules and extensions
 
 ### Application Services
-- [ ] **CS-039:** IAuthenticationService interface
-- [ ] **CS-040:** AuthenticationService implementation
-- [ ] **CS-041:** IOrganizationService interface
-- [ ] **CS-042:** OrganizationService implementation
-- [ ] **CS-043:** IPaymentService interface
-- [ ] **CS-044:** PaymentService implementation
+- [x] **CS-039:** IAuthenticationService interface ✅ DONE
+- [x] **CS-040:** AuthenticationService implementation ✅ DONE
+- [x] **CS-041:** IOrganizationService interface ✅ DONE
+- [x] **CS-042:** OrganizationService implementation ✅ DONE
+- [x] **CS-043:** IPaymentService interface ✅ DONE
+- [x] **CS-044:** PaymentService implementation ✅ DONE
 
 ### CQRS Implementation
 - [ ] **CS-045:** Setup MediatR pipeline
@@ -95,10 +95,10 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [ ] **CS-059:** Password requirements and validation
 
 ### Security Features
-- [ ] **CS-060:** Security headers middleware
+- [x] **CS-060:** Security headers middleware ✅ DONE
 - [ ] **CS-061:** Rate limiting implementation
 - [ ] **CS-062:** API key authentication (for webhooks)
-- [ ] **CS-063:** CORS configuration
+- [x] **CS-063:** CORS configuration ✅ DONE
 - [ ] **CS-064:** Data protection configuration
 
 ## Phase 5: API Endpoints Implementation
@@ -111,9 +111,9 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 - [ ] **CS-069:** POST /api/v1/auth/logout
 
 ### Public Organization Endpoints
-- [ ] **CS-070:** GET /api/v1/organizations
-- [ ] **CS-071:** GET /api/v1/organizations/{id}
-- [ ] **CS-072:** GET /api/v1/organizations/{id}/stats
+- [x] **CS-070:** GET /api/v1/organizations ✅ DONE
+- [x] **CS-071:** GET /api/v1/organizations/{id} ✅ DONE
+- [x] **CS-072:** GET /api/v1/organizations/{id}/stats ✅ DONE
 - [ ] **CS-073:** GET /api/v1/organizations/{id}/qr
 
 ### Protected Organization Endpoints
@@ -142,17 +142,26 @@ Migrating from Python/FastAPI to C#/.NET 8 while maintaining React/Vite frontend
 ## Phase 6: External Integrations
 
 ### Fiserv Payment Gateway
-- [ ] **CS-089:** FiservSettings configuration
-- [ ] **CS-090:** IFiservClient interface
-- [ ] **CS-091:** FiservClient implementation
+- [x] **CS-089:** FiservSettings configuration ✅ DONE (as PolcardSettings)
+- [x] **CS-090:** IFiservClient interface ✅ DONE (as IPolcardCoPilotClient)
+- [x] **CS-091:** FiservClient implementation ✅ DONE (as PolcardCoPilotClient)
 - [ ] **CS-092:** Payment link generation
-- [ ] **CS-093:** Webhook payload models
+- [x] **CS-093:** Webhook payload models ✅ DONE
 - [ ] **CS-094:** HMAC signature verification
 - [ ] **CS-095:** Mock Fiserv client for testing
 
+### Polcard/Fiserv Merchant Onboarding (NEW)
+- [x] **CS-145:** IPolcardCoPilotClient interface ✅ DONE
+- [x] **CS-146:** PolcardCoPilotClient implementation ✅ DONE
+- [x] **CS-147:** Merchant onboarding models (request/response) ✅ DONE
+- [x] **CS-148:** Document upload support ✅ DONE
+- [x] **CS-149:** Webhook controller for Polcard events ✅ DONE
+- [ ] **CS-150:** Merchant status tracking and updates
+- [ ] **CS-151:** Integration with Organization approval flow
+
 ### Other Services
-- [ ] **CS-096:** IQrCodeService interface
-- [ ] **CS-097:** QrCodeService implementation
+- [x] **CS-096:** IQrCodeService interface ✅ DONE
+- [x] **CS-097:** QrCodeService implementation ✅ DONE
 - [ ] **CS-098:** IFileStorageService interface
 - [ ] **CS-099:** LocalFileStorageService implementation
 - [ ] **CS-100:** Email service preparation (interface only)
