@@ -51,4 +51,12 @@ public interface IOrganizationRepository : IGenericRepository<Organization>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Organization statistics or null if not found.</returns>
     Task<OrganizationAnalytics?> GetAnalyticsAsync(Guid organizationId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Gets an organization by its Polcard merchant ID.
+    /// </summary>
+    /// <param name="polcardMerchantId">The Polcard merchant identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The organization or null if not found.</returns>
+    Task<Organization?> GetByPolcardMerchantIdAsync(string polcardMerchantId, CancellationToken cancellationToken = default);
 }

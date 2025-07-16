@@ -53,7 +53,7 @@ public class OrganizationService : IOrganizationService
     {
         var organization = await _unitOfWork.Organizations.GetByIdAsync(id, cancellationToken);
         
-        if (organization == null || organization.Status != OrganizationStatus.Approved)
+        if (organization == null || organization.Status != OrganizationStatus.Active)
         {
             return null;
         }

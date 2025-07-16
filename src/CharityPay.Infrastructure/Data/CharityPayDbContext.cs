@@ -14,6 +14,7 @@ public class CharityPayDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Organization> Organizations { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
+    public DbSet<Document> Documents { get; set; } = null!;
     public DbSet<PaymentEvent> PaymentEvents { get; set; } = null!;
     public DbSet<OrganizationAnalytics> OrganizationAnalytics { get; set; } = null!;
     public DbSet<IoTDevice> IoTDevices { get; set; } = null!;

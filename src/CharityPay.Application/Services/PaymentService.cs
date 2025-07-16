@@ -34,7 +34,7 @@ public class PaymentService : IPaymentService
     {
         var organization = await _unitOfWork.Organizations.GetByIdAsync(request.OrganizationId, cancellationToken);
         
-        if (organization == null || organization.Status != OrganizationStatus.Approved)
+        if (organization == null || organization.Status != OrganizationStatus.Active)
         {
             throw new InvalidOperationException("Organization not found or not approved");
         }

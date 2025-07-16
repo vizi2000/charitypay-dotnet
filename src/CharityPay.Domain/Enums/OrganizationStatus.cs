@@ -3,6 +3,9 @@ namespace CharityPay.Domain.Enums;
 public enum OrganizationStatus
 {
     Pending = 0,
-    Approved = 1,
-    Rejected = 2
+    KycSubmitted = 1,
+    MerchantApproved = 2,
+    Active = 3,
+    Rejected = 4,
+    Suspended = 5
 }

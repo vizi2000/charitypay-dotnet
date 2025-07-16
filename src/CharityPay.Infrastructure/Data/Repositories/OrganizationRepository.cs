@@ -27,7 +27,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     public async Task<IEnumerable<Organization>> GetApprovedOrganizationsAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(o => o.Status == OrganizationStatus.Approved)
+            .Where(o => o.Status == OrganizationStatus.Active)
             .OrderBy(o => o.Name)
             .ToListAsync(cancellationToken);
     }
@@ -43,7 +43,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     public async Task<IEnumerable<Organization>> GetByCategoryAsync(string category, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(o => o.Category == category && o.Status == OrganizationStatus.Approved)
+            .Where(o => o.Category == category && o.Status == OrganizationStatus.Active)
             .OrderBy(o => o.Name)
             .ToListAsync(cancellationToken);
     }
@@ -51,7 +51,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     public async Task<IEnumerable<Organization>> GetByLocationAsync(string location, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(o => o.Location == location && o.Status == OrganizationStatus.Approved)
+            .Where(o => o.Location == location && o.Status == OrganizationStatus.Active)
             .OrderBy(o => o.Name)
             .ToListAsync(cancellationToken);
     }
@@ -82,7 +82,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
         }
         else
         {
-            query = query.Where(o => o.Status == OrganizationStatus.Approved);
+            query = query.Where(o => o.Status == OrganizationStatus.Active);
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -104,7 +104,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     public async Task<decimal> GetTotalCollectedAmountAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(o => o.Status == OrganizationStatus.Approved)
+            .Where(o => o.Status == OrganizationStatus.Active)
             .SumAsync(o => o.CollectedAmount, cancellationToken);
     }
 
@@ -130,7 +130,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
         CancellationToken cancellationToken = default)
     {
         var skip = (page - 1) * pageSize;
-        var query = _dbSet.Where(o => o.Status == OrganizationStatus.Approved);
+        var query = _dbSet.Where(o => o.Status == OrganizationStatus.Active);
         
         var totalCount = await query.CountAsync(cancellationToken);
         var organizations = await query
@@ -145,7 +145,7 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     public async Task<IEnumerable<Organization>> SearchByNameAsync(string searchTerm, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(o => o.Name.Contains(searchTerm) && o.Status == OrganizationStatus.Approved)
+            .Where(o => o.Name.Contains(searchTerm) && o.Status == OrganizationStatus.Active)
             .OrderBy(o => o.Name)
             .ToListAsync(cancellationToken);
     }
@@ -154,5 +154,13 @@ public class OrganizationRepository : GenericRepository<Organization>, IOrganiza
     {
         return await _context.OrganizationAnalytics
             .FirstOrDefaultAsync(a => a.OrganizationId == organizationId, cancellationToken);
+    }
+
+    public async Task<Organization?> GetByPolcardMerchantIdAsync(string polcardMerchantId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(o => o.User)
+            .Include(o => o.Documents)
+            .FirstOrDefaultAsync(o => o.PolcardMerchantId == polcardMerchantId, cancellationToken);
     }
 }

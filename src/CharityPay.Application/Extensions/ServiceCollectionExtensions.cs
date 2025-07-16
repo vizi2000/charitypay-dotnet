@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IOrganizationService, OrganizationService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IMerchantOnboardingService, MerchantOnboardingService>();
         
         // Add MediatR if using CQRS pattern
         // services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));

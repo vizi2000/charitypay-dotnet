@@ -38,6 +38,12 @@ export function RegisterPage() {
     contact_email: '',
     website: '',
     
+    // Merchant/Payment details
+    legal_business_name: '',
+    tax_id: '',
+    krs_number: '',
+    bank_account: '',
+    
     // Admin user details
     admin_full_name: '',
     admin_password: ''
@@ -99,6 +105,27 @@ export function RegisterPage() {
 
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
       newErrors.website = t('register.validation.websiteInvalid');
+    }
+
+    // Merchant validation
+    if (!formData.legal_business_name.trim()) {
+      newErrors.legal_business_name = 'Oficjalna nazwa organizacji jest wymagana';
+    }
+
+    if (!formData.tax_id.trim()) {
+      newErrors.tax_id = 'NIP jest wymagany';
+    } else if (!/^\d{10}$/.test(formData.tax_id.replace(/[-\s]/g, ''))) {
+      newErrors.tax_id = 'NIP musi składać się z 10 cyfr';
+    }
+
+    if (!formData.bank_account.trim()) {
+      newErrors.bank_account = 'Numer konta bankowego jest wymagany';
+    } else if (!/^PL\d{26}$/.test(formData.bank_account.replace(/\s/g, ''))) {
+      newErrors.bank_account = 'Numer konta musi być w formacie polskiego IBAN (PL + 26 cyfr)';
+    }
+
+    if (formData.krs_number && !/^\d{1,20}$/.test(formData.krs_number)) {
+      newErrors.krs_number = 'Numer KRS może zawierać tylko cyfry (maksymalnie 20)';
     }
 
     // Admin user validation
@@ -371,6 +398,87 @@ export function RegisterPage() {
                     />
                   </div>
                   {errors.description && <p className="text-red-600 text-sm mt-1">{errors.description}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Merchant Details */}
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                <CurrencyDollarIcon className="w-6 h-6 mr-2 text-primary-600" />
+                Dane do płatności
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Legal Business Name */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Oficjalna nazwa organizacji *
+                  </label>
+                  <input
+                    type="text"
+                    name="legal_business_name"
+                    value={formData.legal_business_name}
+                    onChange={handleInputChange}
+                    className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-primary-500 ${errors.legal_business_name ? 'border-red-300' : 'border-slate-300'}`}
+                    placeholder="Parafia Św. Jana w Warszawie"
+                  />
+                  {errors.legal_business_name && <p className="text-red-600 text-sm mt-1">{errors.legal_business_name}</p>}
+                  <p className="text-sm text-slate-500 mt-1">Nazwa zgodna z KRS lub dokumentami rejestracyjnymi</p>
+                </div>
+
+                {/* Tax ID (NIP) */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    NIP *
+                  </label>
+                  <input
+                    type="text"
+                    name="tax_id"
+                    value={formData.tax_id}
+                    onChange={handleInputChange}
+                    className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-primary-500 ${errors.tax_id ? 'border-red-300' : 'border-slate-300'}`}
+                    placeholder="1234567890"
+                    maxLength="12"
+                  />
+                  {errors.tax_id && <p className="text-red-600 text-sm mt-1">{errors.tax_id}</p>}
+                  <p className="text-sm text-slate-500 mt-1">10 cyfr bez kresek</p>
+                </div>
+
+                {/* KRS Number */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Numer KRS
+                  </label>
+                  <input
+                    type="text"
+                    name="krs_number"
+                    value={formData.krs_number}
+                    onChange={handleInputChange}
+                    className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-primary-500 ${errors.krs_number ? 'border-red-300' : 'border-slate-300'}`}
+                    placeholder="0000123456"
+                    maxLength="20"
+                  />
+                  {errors.krs_number && <p className="text-red-600 text-sm mt-1">{errors.krs_number}</p>}
+                  <p className="text-sm text-slate-500 mt-1">Opcjonalnie - jeśli organizacja jest zarejestrowana</p>
+                </div>
+
+                {/* Bank Account */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Numer konta bankowego (IBAN) *
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_account"
+                    value={formData.bank_account}
+                    onChange={handleInputChange}
+                    className={`w-full p-3 border rounded-xl focus:ring-2 focus:ring-primary-500 ${errors.bank_account ? 'border-red-300' : 'border-slate-300'}`}
+                    placeholder="PL61109010140000071219812874"
+                    maxLength="30"
+                  />
+                  {errors.bank_account && <p className="text-red-600 text-sm mt-1">{errors.bank_account}</p>}
+                  <p className="text-sm text-slate-500 mt-1">Konto na które będą przekazywane darowizny</p>
                 </div>
               </div>
             </div>
