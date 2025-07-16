@@ -2,9 +2,20 @@
 
 A modern, enterprise-grade charitable payment platform built with .NET 8 and React.
 
+**Status**: Migration 60% Complete | [Architecture](./architecture.md) | [Tasks](./TASK.md) | [Planning](./PLANNING.md)
+
 ## Overview
 
-CharityPay is a complete rewrite of the original Python/FastAPI backend to C#/.NET 8, maintaining the React/Vite frontend. The platform enables charitable organizations (parishes) to accept contactless payments via QR codes and custom donation pages.
+CharityPay is a complete rewrite of the original Python/FastAPI backend to C#/.NET 8, maintaining the React/Vite frontend. The platform enables charitable organizations to accept contactless payments via QR codes and custom donation pages.
+
+### Current Features
+- ✅ Organization registration and management
+- ✅ QR code generation for contactless payments
+- ✅ JWT-based authentication (refresh tokens pending)
+- ✅ Polcard/Fiserv merchant onboarding integration
+- 🚧 Payment processing (mock implementation)
+- ❌ Email notifications (not implemented)
+- ❌ Production deployment (development only)
 
 ## Architecture
 
@@ -35,12 +46,12 @@ docs/                        # Documentation
 - **Testing**: xUnit, Moq, FluentAssertions
 
 ### Frontend
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with JavaScript (TypeScript migration planned)
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS v4
+- **Styling**: Tailwind CSS v3
 - **State Management**: React Context API
-- **HTTP Client**: Axios with TypeScript interfaces
-- **Testing**: Vitest, React Testing Library
+- **HTTP Client**: Axios
+- **Testing**: Not yet configured
 
 ### External Integrations
 - **Payment Gateway**: Fiserv/PolCard API
@@ -56,47 +67,48 @@ docs/                        # Documentation
 
 ## Quick Start
 
-### Backend Setup
+### Using Docker (Recommended)
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+Services will be available at:
+- API: http://localhost:8081
+- Frontend: http://localhost:5174
+- PostgreSQL: localhost:5433
+- Redis: localhost:6380
+
+### Manual Setup
+
+#### Backend
 
 1. Install .NET 8 SDK:
    ```bash
    # macOS with Homebrew
    brew install --cask dotnet-sdk
    
-   # Or download from https://dotnet.microsoft.com/download
+   # Windows/Linux: Download from https://dotnet.microsoft.com/download
    ```
 
-2. Clone and navigate to the repository:
-   ```bash
-   cd ~/etaca/charitypay-dotnet
-   ```
+2. Configure PostgreSQL connection in `appsettings.Development.json`
 
-3. Restore dependencies and build:
-   ```bash
-   dotnet restore
-   dotnet build
-   ```
-
-4. Set up environment variables:
-   ```bash
-   cp src/CharityPay.API/.env.example src/CharityPay.API/.env
-   # Edit .env with your configuration
-   ```
-
-5. Run database migrations:
+3. Run the API:
    ```bash
    cd src/CharityPay.API
-   dotnet ef database update
+   dotnet run
    ```
 
-6. Run the API:
-   ```bash
-   dotnet run --project src/CharityPay.API
-   ```
+The API will be available at `https://localhost:5001` with Swagger at `/swagger`.
 
-The API will be available at `https://localhost:7001` (HTTPS) and `http://localhost:5000` (HTTP).
-
-### Frontend Setup
+#### Frontend
 
 1. Navigate to frontend directory:
    ```bash
@@ -108,7 +120,12 @@ The API will be available at `https://localhost:7001` (HTTPS) and `http://localh
    npm install
    ```
 
-3. Run development server:
+3. Configure API endpoint in `.env`:
+   ```bash
+   VITE_API_URL=http://localhost:8081
+   ```
+
+4. Run development server:
    ```bash
    npm run dev
    ```
@@ -130,23 +147,23 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
 dotnet test tests/CharityPay.Domain.Tests
 ```
 
-### Database Migrations
+### Database Management
+
+**Note**: Currently using `EnsureCreated` for development. Migrations are planned for production.
 
 ```bash
-# Add a new migration
-dotnet ef migrations add MigrationName -p src/CharityPay.Infrastructure -s src/CharityPay.API
-
-# Update database
-dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
-
-# Remove last migration
-dotnet ef migrations remove -p src/CharityPay.Infrastructure -s src/CharityPay.API
+# Future migration commands (not yet implemented):
+# dotnet ef migrations add MigrationName -p src/CharityPay.Infrastructure -s src/CharityPay.API
+# dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
 ```
+
+The database is automatically created and seeded on first run in development.
 
 ### API Documentation
 
-When running in development, Swagger UI is available at:
-- https://localhost:7001/swagger
+Swagger UI is available at:
+- Docker: http://localhost:8081/swagger
+- Manual setup: https://localhost:5001/swagger
 
 ## Project Structure
 
@@ -198,26 +215,26 @@ Configuration is managed through:
     "Audience": "CharityPayUsers",
     "ExpirationDays": 7
   },
-  "FiservSettings": {
-    "BaseUrl": "https://sandbox.api.fiservapps.com",
-    "ApiKey": "your-api-key",
-    "ApiSecret": "your-api-secret",
-    "StoreId": "your-store-id"
+  "PolcardSettings": {
+    "BaseUrl": "https://copilot-uat.polcard.pl",
+    "ClientId": "your-client-id",
+    "ClientSecret": "your-client-secret",
+    "WebhookSecret": "your-webhook-secret"
   }
 }
 ```
 
 ## Security
 
-- JWT authentication with refresh tokens
+- JWT authentication (refresh tokens pending implementation)
 - Role-based authorization (Admin, Organization)
 - HTTPS enforcement in production
-- Input validation and sanitization
-- SQL injection prevention via parameterized queries
+- Input validation with FluentValidation
+- SQL injection prevention via Entity Framework Core
 - XSS protection through proper encoding
-- CORS configuration
-- Rate limiting
-- Security headers middleware
+- CORS properly configured
+- Rate limiting implemented
+- Security headers middleware active
 
 ## Deployment
 
@@ -251,19 +268,29 @@ docker-compose logs -f
 - Structured logging with Serilog
 - Application Insights integration (Azure)
 
+## Known Issues
+
+1. **Refresh Tokens**: Not implemented, throws `NotImplementedException`
+2. **Payment Processing**: Using mock implementation, returns test URLs
+3. **Email Service**: Not implemented
+4. **File Storage**: Local storage only, cloud storage pending
+5. **Database Migrations**: Using `EnsureCreated`, proper migrations needed for production
+
 ## Contributing
 
-1. Follow the coding standards in `docs/CODING_STANDARDS.md`
-2. Write unit tests for new features
-3. Update documentation
-4. Create pull request with clear description
+1. Check [TASK.md](./TASK.md) for current priorities
+2. Follow Clean Architecture principles
+3. Write unit tests for new features
+4. Update documentation
+5. Create pull request with clear description
 
 ## License
 
-[License information]
+This project is proprietary software. All rights reserved.
 
 ## Support
 
 For issues and questions:
-- GitHub Issues: [repository-url]/issues
-- Documentation: See `/docs` directory
+- GitHub Issues: https://github.com/vizi2000/charitypay-dotnet/issues
+- Documentation: See architecture.md, PLANNING.md, and TASK.md
+- Development guide: See CLAUDE.md for AI-assisted development

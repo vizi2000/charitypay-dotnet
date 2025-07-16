@@ -4,6 +4,8 @@
 
 CharityPay is built using Clean Architecture principles with Domain-Driven Design (DDD) tactical patterns. This document describes the system architecture, key design decisions, and implementation patterns.
 
+**Current Status**: The migration from Python/FastAPI to .NET 8 is approximately 60% complete with core infrastructure and basic functionality implemented.
+
 ## System Architecture
 
 ### High-Level Architecture
@@ -11,212 +13,237 @@ CharityPay is built using Clean Architecture principles with Domain-Driven Desig
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         Frontend                             │
-│                   React + TypeScript + Vite                  │
+│                   React + JavaScript + Vite                  │
+│                    (Tailwind CSS, Axios)                     │
 └─────────────────────┬───────────────────────────────────────┘
                       │ HTTPS/REST API
 ┌─────────────────────┴───────────────────────────────────────┐
 │                      API Gateway                             │
 │                  ASP.NET Core 8.0 API                       │
+│                 (JWT Auth, CORS, Swagger)                   │
 ├─────────────────────────────────────────────────────────────┤
 │                   Application Layer                          │
-│              Use Cases / Application Services                │
+│              Application Services / DTOs                     │
+│            (AutoMapper, FluentValidation)                   │
 ├─────────────────────────────────────────────────────────────┤
 │                     Domain Layer                             │
-│           Entities / Value Objects / Domain Services         │
+│           Entities / Value Objects / Enums                  │
+│              (User, Organization, Payment)                  │
 ├─────────────────────────────────────────────────────────────┤
 │                  Infrastructure Layer                        │
-│        EF Core / External Services / File Storage          │
+│        EF Core / Repositories / External Services           │
+│         (Polcard Client, JWT Service, Seeding)              │
 └─────────────────────┬───────────────────┬───────────────────┘
                       │                   │
-              ┌───────┴────────┐   ┌─────┴──────┐
-              │   PostgreSQL    │   │   Fiserv   │
-              │    Database     │   │    API     │
-              └────────────────┘   └────────────┘
+              ┌───────┴────────┐   ┌─────┴──────────┐
+              │   PostgreSQL    │   │ Polcard/Fiserv │
+              │    Database     │   │   CoPilot API  │
+              └────────────────┘   └────────────────┘
 ```
 
 ## Layer Responsibilities
 
-### 1. Domain Layer (CharityPay.Domain)
+### 1. Domain Layer (CharityPay.Domain) ✅ IMPLEMENTED
 
 The heart of the application containing business logic and rules.
 
 **Components:**
-- **Entities**: Core business objects with identity (User, Organization, Payment)
-- **Value Objects**: Immutable objects without identity (Money, EmailAddress)
-- **Domain Events**: Significant business occurrences
-- **Domain Services**: Business logic spanning multiple entities
-- **Repository Interfaces**: Contracts for data persistence
-- **Specifications**: Encapsulated query logic
+- **Entities**: Core business objects with identity (User, Organization, Payment, Document, IoTDevice, DeviceHeartbeat)
+- **Value Objects**: Immutable objects without identity (Nip, BankAccount)
+- **Enums**: Business constants (UserRole, OrganizationStatus, PaymentStatus, PaymentMethod, OrganizationCategory)
+- **Base Classes**: Entity base class with audit fields, Error class
+- **Repository Interfaces**: Contracts for data persistence (planned)
 
-**Key Principles:**
-- No dependencies on other layers
-- Rich domain model (not anemic)
-- Invariants enforced within aggregates
-- Domain events for loose coupling
+**Current Implementation Status:**
+- ✅ All core entities implemented
+- ✅ All enums properly defined in separate files
+- ✅ Value objects for NIP and BankAccount
+- ✅ Base entity classes with audit tracking
+- ❌ Domain events not yet implemented
+- ❌ Specifications pattern not implemented
 
-**Example Structure:**
+**Actual Structure:**
 ```
 CharityPay.Domain/
 ├── Entities/
 │   ├── User.cs
 │   ├── Organization.cs
-│   └── Payment.cs
+│   ├── Payment.cs
+│   ├── Document.cs
+│   ├── IoTDevice.cs
+│   └── DeviceHeartbeat.cs
+├── Enums/
+│   ├── UserRole.cs
+│   ├── OrganizationStatus.cs
+│   ├── PaymentStatus.cs
+│   ├── PaymentMethod.cs
+│   └── OrganizationCategory.cs
 ├── ValueObjects/
-│   ├── Money.cs
-│   ├── EmailAddress.cs
-│   └── PaymentMethod.cs
-├── Events/
-│   ├── PaymentCompletedEvent.cs
-│   └── OrganizationApprovedEvent.cs
-├── Services/
-│   └── IPaymentService.cs
-├── Repositories/
-│   ├── IUserRepository.cs
-│   ├── IOrganizationRepository.cs
-│   └── IPaymentRepository.cs
-└── Specifications/
-    └── ActiveOrganizationSpecification.cs
+│   ├── Nip.cs
+│   └── BankAccount.cs
+└── Shared/
+    ├── Entity.cs
+    └── Error.cs
 ```
 
-### 2. Application Layer (CharityPay.Application)
+### 2. Application Layer (CharityPay.Application) 🚧 PARTIALLY IMPLEMENTED
 
 Orchestrates the flow of data and coordinates domain objects.
 
 **Components:**
-- **Use Cases**: Application-specific business rules
+- **Application Services**: Business logic orchestration
 - **DTOs**: Data Transfer Objects for API communication
-- **Mappers**: Object-to-object mapping configurations
-- **Validators**: Input validation rules
-- **Application Services**: Orchestration logic
-- **CQRS**: Commands and Queries (with MediatR)
+- **Abstractions**: Service interfaces and contracts
+- **Mappers**: AutoMapper profiles for object mapping
+- **Validators**: FluentValidation rules
 
-**Key Principles:**
-- Thin layer orchestrating domain objects
-- No business logic (delegates to domain)
-- Transaction management
-- Cross-cutting concerns (logging, validation)
+**Current Implementation Status:**
+- ✅ Core services implemented (Authentication, Organization, Payment, MerchantOnboarding)
+- ✅ DTOs for all major entities
+- ✅ Service interfaces properly abstracted
+- ✅ AutoMapper profiles configured
+- ✅ FluentValidation validators
+- ❌ CQRS with MediatR not implemented
+- ❌ Use cases pattern not implemented
 
-**Example Structure:**
+**Actual Structure:**
 ```
 CharityPay.Application/
-├── UseCases/
-│   ├── Organizations/
-│   │   ├── Commands/
-│   │   │   ├── CreateOrganizationCommand.cs
-│   │   │   └── ApproveOrganizationCommand.cs
-│   │   └── Queries/
-│   │       ├── GetOrganizationsQuery.cs
-│   │       └── GetOrganizationByIdQuery.cs
-│   └── Payments/
-│       ├── Commands/
-│       │   └── InitiatePaymentCommand.cs
-│       └── Queries/
-│           └── GetPaymentStatusQuery.cs
+├── Abstractions/
+│   ├── IAuthenticationService.cs
+│   ├── IMerchantOnboardingService.cs
+│   ├── IOrganizationService.cs
+│   ├── IPasswordService.cs
+│   ├── IPaymentService.cs
+│   └── IQRCodeService.cs
 ├── DTOs/
-│   ├── OrganizationDto.cs
-│   ├── PaymentDto.cs
-│   └── UserDto.cs
+│   ├── Auth/
+│   │   ├── LoginDto.cs
+│   │   ├── RegisterDto.cs
+│   │   └── TokenDto.cs
+│   ├── Organization/
+│   │   ├── OrganizationDto.cs
+│   │   └── CreateOrganizationDto.cs
+│   └── Payment/
+│       ├── PaymentDto.cs
+│       └── PaymentLinkDto.cs
 ├── Mappings/
-│   ├── OrganizationProfile.cs
-│   └── PaymentProfile.cs
-├── Validators/
-│   ├── CreateOrganizationValidator.cs
-│   └── InitiatePaymentValidator.cs
-└── Services/
-    ├── IAuthenticationService.cs
-    └── IQrCodeService.cs
+│   └── MappingProfile.cs
+├── Services/
+│   ├── AuthenticationService.cs
+│   ├── MerchantOnboardingService.cs
+│   ├── OrganizationService.cs
+│   └── PaymentService.cs
+└── Validators/
+    ├── LoginDtoValidator.cs
+    ├── RegisterDtoValidator.cs
+    └── CreateOrganizationDtoValidator.cs
 ```
 
-### 3. Infrastructure Layer (CharityPay.Infrastructure)
+### 3. Infrastructure Layer (CharityPay.Infrastructure) ✅ MOSTLY IMPLEMENTED
 
 Implements all external concerns and provides concrete implementations.
 
 **Components:**
-- **Data Access**: EF Core DbContext and configurations
-- **Repositories**: Concrete implementations
-- **External Services**: Payment gateway, file storage
-- **Identity**: ASP.NET Core Identity configuration
-- **Caching**: Redis or in-memory caching
-- **Logging**: Serilog sinks and enrichers
+- **Data Access**: EF Core DbContext with comprehensive configurations
+- **Repositories**: Generic repository pattern with Unit of Work
+- **External Services**: Polcard/Fiserv integration, JWT, QR code generation
+- **Database Seeding**: Comprehensive test data generation
+- **Background Services**: Merchant status synchronization
+- **Security**: JWT token generation, password hashing
 
-**Key Principles:**
-- Depends on Domain and Application layers
-- Implements interfaces defined in Domain
-- Handles all I/O operations
-- Technology-specific implementations
+**Current Implementation Status:**
+- ✅ Complete EF Core setup with all entity configurations
+- ✅ Repository pattern with Unit of Work
+- ✅ Polcard/Fiserv CoPilot client fully implemented
+- ✅ JWT service for token generation
+- ✅ Password service with secure hashing
+- ✅ QR code service implementation
+- ✅ Database seeding for development
+- ✅ Background service for merchant sync
+- ❌ Redis caching not implemented
+- ❌ Email service not implemented
+- ❌ File storage service not implemented
 
-**Example Structure:**
+**Actual Structure:**
 ```
 CharityPay.Infrastructure/
 ├── Data/
 │   ├── CharityPayDbContext.cs
 │   ├── Configurations/
-│   │   ├── UserConfiguration.cs
-│   │   ├── OrganizationConfiguration.cs
-│   │   └── PaymentConfiguration.cs
-│   └── Repositories/
-│       ├── UserRepository.cs
-│       ├── OrganizationRepository.cs
-│       └── PaymentRepository.cs
-├── Identity/
-│   ├── IdentityService.cs
-│   └── JwtTokenService.cs
+│   │   └── (Entity configurations in OnModelCreating)
+│   ├── Repositories/
+│   │   ├── Repository.cs
+│   │   └── UnitOfWork.cs
+│   └── Seeding/
+│       └── DatabaseSeeder.cs
+├── ExternalServices/
+│   └── Polcard/
+│       ├── PolcardCoPilotClient.cs
+│       ├── Models/
+│       │   ├── Requests/
+│       │   └── Responses/
+│       └── Mappings/
 ├── Services/
-│   ├── FiservPaymentService.cs
-│   ├── LocalFileStorageService.cs
-│   └── QrCodeGenerationService.cs
-├── Caching/
-│   └── RedisCacheService.cs
+│   ├── JwtService.cs
+│   ├── PasswordService.cs
+│   └── QrCodeService.cs
+├── BackgroundServices/
+│   └── MerchantStatusSyncService.cs
 └── Logging/
-    └── SerilogEnricher.cs
+    └── LoggerManager.cs
 ```
 
-### 4. API Layer (CharityPay.API)
+### 4. API Layer (CharityPay.API) 🚧 PARTIALLY IMPLEMENTED
 
 The entry point for all client requests.
 
 **Components:**
-- **Endpoints**: Minimal API endpoints or controllers
-- **Middleware**: Cross-cutting concerns
-- **Filters**: Action filters for common behaviors
-- **Models**: API-specific request/response models
-- **Configuration**: Dependency injection setup
+- **Controllers**: MVC controllers (not Minimal APIs yet)
+- **Middleware**: Security headers, CORS, authentication
+- **Configuration**: JWT, Swagger, dependency injection
+- **Background Services**: Hosted services registration
 
-**Key Principles:**
-- Thin controllers/endpoints
-- No business logic
-- Request/response transformation
-- API versioning
-- Authentication/authorization
+**Current Implementation Status:**
+- ✅ JWT authentication configured
+- ✅ CORS properly configured
+- ✅ Swagger/OpenAPI documentation
+- ✅ Security headers middleware
+- ✅ Rate limiting middleware
+- ✅ Database initialization on startup
+- ✅ Basic controllers implemented
+- ❌ Minimal APIs not implemented (using controllers)
+- ❌ Global exception handling incomplete
+- ❌ API versioning not implemented
 
-**Example Structure:**
+**Actual Structure:**
 ```
 CharityPay.API/
-├── Endpoints/
-│   ├── AuthEndpoints.cs
-│   ├── OrganizationEndpoints.cs
-│   ├── PaymentEndpoints.cs
-│   └── AdminEndpoints.cs
+├── Controllers/
+│   ├── AdminController.cs
+│   ├── AuthController.cs
+│   ├── DemoController.cs
+│   ├── HealthController.cs
+│   ├── MerchantOnboardingController.cs
+│   ├── OrganizationsController.cs
+│   └── PolcardWebhookController.cs
+├── Extensions/
+│   └── ServiceCollectionExtensions.cs
 ├── Middleware/
-│   ├── ExceptionHandlingMiddleware.cs
-│   ├── RequestLoggingMiddleware.cs
-│   └── SecurityHeadersMiddleware.cs
-├── Filters/
-│   ├── ValidationFilter.cs
-│   └── ApiKeyAuthFilter.cs
-├── Models/
-│   ├── Requests/
-│   │   ├── LoginRequest.cs
-│   │   └── InitiatePaymentRequest.cs
-│   └── Responses/
-│       ├── ApiResponse.cs
-│       └── PaginatedResponse.cs
-├── Configuration/
-│   ├── DependencyInjection.cs
-│   ├── SwaggerConfiguration.cs
-│   └── AuthenticationConfiguration.cs
-└── Program.cs
+│   └── (Configured in Program.cs)
+├── Program.cs
+├── appsettings.json
+└── appsettings.Development.json
 ```
+
+**Key Endpoints Implemented:**
+- `POST /api/v1/auth/login` - User authentication
+- `POST /api/v1/auth/register-organization` - Organization registration
+- `GET /api/v1/organizations` - List organizations
+- `GET /api/v1/organizations/{id}` - Organization details
+- `POST /api/v1/merchant-onboarding/create` - Polcard merchant creation
+- `POST /api/v1/webhooks/polcard` - Webhook receiver
+- `GET /health` - Health check
 
 ## Key Design Patterns
 
@@ -266,20 +293,21 @@ public class CreateOrganizationCommandHandler
 ### 3. Options Pattern for Configuration
 
 ```csharp
-public class FiservSettings
+public class PolcardSettings
 {
     public string BaseUrl { get; set; }
-    public string ApiKey { get; set; }
-    public string ApiSecret { get; set; }
-    public string StoreId { get; set; }
+    public string ClientId { get; set; }
+    public string ClientSecret { get; set; }
+    public string WebhookSecret { get; set; }
+    public int TokenExpiryBufferMinutes { get; set; } = 5;
 }
 
 // Usage
-public class FiservPaymentService
+public class PolcardCoPilotClient
 {
-    private readonly FiservSettings _settings;
+    private readonly PolcardSettings _settings;
     
-    public FiservPaymentService(IOptions<FiservSettings> options)
+    public PolcardCoPilotClient(IOptions<PolcardSettings> options)
     {
         _settings = options.Value;
     }
@@ -339,6 +367,47 @@ Database
 DTO Mapping (AutoMapper)
     ↓
 Response
+```
+
+## External Integrations
+
+### Polcard/Fiserv CoPilot Integration
+
+The system integrates with Polcard's CoPilot API for merchant onboarding and payment processing.
+
+**Implementation Details:**
+- OAuth2 authentication with automatic token refresh
+- Comprehensive error handling and retry logic
+- Request/response logging for debugging
+- Webhook signature verification
+- Background service for status synchronization
+
+**Key Features:**
+```csharp
+public interface IPolcardCoPilotClient
+{
+    Task<AuthTokenResponse> GetAuthTokenAsync();
+    Task<CreateMerchantResponse> CreateMerchantAsync(CreateMerchantRequest request);
+    Task<UploadDocumentResponse> UploadDocumentAsync(Guid merchantId, IFormFile file);
+    Task<MerchantStatusResponse> GetMerchantStatusAsync(Guid merchantId);
+    bool VerifyWebhookSignature(string payload, string signature);
+}
+```
+
+**Integration Flow:**
+```
+┌──────────────┐     ┌─────────────┐     ┌─────────────────┐
+│ Organization │────►│ CharityPay  │────►│ Polcard CoPilot │
+│ Registration │     │    API      │     │      API        │
+└──────────────┘     └─────────────┘     └─────────────────┘
+                            │                      │
+                            │◄─────────────────────┘
+                            │    Webhook Events
+                            ▼
+                     ┌─────────────┐
+                     │   Database  │
+                     │   Updates   │
+                     └─────────────┘
 ```
 
 ## Security Architecture
@@ -548,6 +617,108 @@ spec:
           value: "Production"
 ```
 
+## Frontend Architecture
+
+### React Application Structure
+
+The frontend is built with React 19 and JavaScript (not TypeScript as originally planned).
+
+**Technology Stack:**
+- React 19 with functional components and hooks
+- Vite for fast development and building
+- React Router v6 for client-side routing
+- Axios for API communication
+- Tailwind CSS for styling
+- Context API for state management
+
+**Current Structure:**
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── AdminDashboard.jsx
+│   │   ├── DonationForm.jsx
+│   │   ├── LanguageSwitcher.jsx
+│   │   ├── LoginForm.jsx
+│   │   ├── OrganizationDashboard.jsx
+│   │   └── RegisterForm.jsx
+│   ├── contexts/
+│   │   └── AuthContext.jsx
+│   ├── pages/
+│   │   ├── HomePage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── OrganizationDetailsPage.jsx
+│   │   └── PaymentPage.jsx
+│   ├── services/
+│   │   └── api.js (Axios client)
+│   ├── utils/
+│   │   └── translations.js
+│   └── App.jsx
+├── public/
+├── index.html
+└── vite.config.js
+```
+
+**API Integration:**
+- Base URL configured for local development (http://localhost:8081)
+- JWT token storage in localStorage
+- Automatic token injection via Axios interceptors
+- Field name mapping between backend (camelCase) and frontend (snake_case)
+
+## Current Development Status
+
+### Implementation Progress
+
+| Layer | Status | Description |
+|-------|--------|-------------|
+| Domain | ✅ 100% | All entities, enums, and value objects implemented |
+| Application | 🚧 70% | Core services done, CQRS/MediatR pending |
+| Infrastructure | 🚧 80% | EF Core, Polcard integration complete; caching/email pending |
+| API | 🚧 60% | Basic endpoints working; versioning, global error handling pending |
+| Frontend | 🚧 60% | Core functionality working; TypeScript migration pending |
+
+### Key Achievements
+- Complete Polcard/Fiserv merchant onboarding integration
+- Working authentication with JWT tokens
+- Database seeding with comprehensive test data
+- Frontend successfully integrated with backend API
+- Repository pattern with Unit of Work implemented
+
+### Critical Gaps
+- Refresh token implementation (throws NotImplementedException)
+- Real payment processing (mock implementation only)
+- Email notifications
+- File storage service
+- Production-ready error handling
+- Comprehensive test coverage
+
+## Migration Considerations
+
+### From Development to Production
+
+1. **Database Strategy**:
+   - Currently using `EnsureCreatedAsync()` for development
+   - Need to implement proper EF Core migrations
+   - Add database indexes for performance
+
+2. **Security Hardening**:
+   - Implement refresh token storage and rotation
+   - Add API rate limiting per user
+   - Enhance webhook signature verification
+   - Implement proper secrets management
+
+3. **Performance Optimization**:
+   - Add Redis caching layer
+   - Implement response compression
+   - Add database query optimization
+   - Consider CDN for static assets
+
+4. **Monitoring & Observability**:
+   - Integrate Application Insights or similar
+   - Add structured logging with correlation IDs
+   - Implement health checks for all dependencies
+   - Add performance metrics collection
+
 ## Future Considerations
 
 1. **Event Sourcing**: For payment audit trail
@@ -555,3 +726,6 @@ spec:
 3. **GraphQL**: Alternative API for complex queries
 4. **gRPC**: For internal service communication
 5. **Message Queue**: For async processing (Azure Service Bus/RabbitMQ)
+6. **TypeScript Migration**: Convert frontend from JavaScript to TypeScript
+7. **Minimal APIs**: Migrate from controllers to .NET Minimal APIs
+8. **CQRS Pattern**: Implement with MediatR for better separation of concerns
