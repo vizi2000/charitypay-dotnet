@@ -1,162 +1,160 @@
-# CharityPay .NET Deployment Guide
+# CharityPay Production Deployment Guide
+
+This guide explains how to deploy CharityPay in a production environment to make it accessible from external IP addresses.
 
 ## Prerequisites
 
-- Docker Desktop installed and running
-- Git (for cloning the repository)
-- .NET 9 SDK (optional, only if running without Docker)
+- Docker and Docker Compose installed
+- External IP address or domain name
+- Ports 8081 (API) and 5174 (Frontend) available
 
-## Quick Start with Docker
+## Quick Start
 
-### 1. Clone the Repository
+1. **Create production environment file**
+   ```bash
+   cp .env.production.example .env.production
+   ```
+
+2. **Edit `.env.production`** with your configuration:
+   ```env
+   # Your external IP address (required)
+   EXTERNAL_IP=194.181.240.37
+   
+   # Or your domain name (optional)
+   DOMAIN_NAME=yourdomain.com
+   
+   # Security settings (change all of these!)
+   DB_PASSWORD=your-secure-database-password
+   REDIS_PASSWORD=your-secure-redis-password
+   JWT_SECRET=your-super-secret-jwt-key-that-should-be-at-least-32-characters-long
+   
+   # Polcard/Fiserv settings (if you have them)
+   POLCARD_CLIENT_ID=your-client-id
+   POLCARD_CLIENT_SECRET=your-client-secret
+   POLCARD_WEBHOOK_SECRET=your-webhook-secret
+   ```
+
+3. **Start the production environment**
+   ```bash
+   ./start-production.sh
+   ```
+
+## Manual Deployment
+
+If you prefer to run commands manually:
+
+1. **Load environment variables**
+   ```bash
+   export $(cat .env.production | grep -v '^#' | xargs)
+   ```
+
+2. **Build and start services**
+   ```bash
+   docker-compose -f docker-compose.production.yml build
+   docker-compose -f docker-compose.production.yml up -d
+   ```
+
+3. **Check logs**
+   ```bash
+   docker-compose -f docker-compose.production.yml logs -f
+   ```
+
+## Accessing the Application
+
+After deployment, your application will be available at:
+- **Frontend**: `http://YOUR_EXTERNAL_IP:5174`
+- **API**: `http://YOUR_EXTERNAL_IP:8081`
+- **API Documentation**: `http://YOUR_EXTERNAL_IP:8081/swagger`
+
+## Production Configuration Details
+
+### CORS Configuration
+The production setup automatically configures CORS to allow requests from:
+- `http://YOUR_EXTERNAL_IP:5174`
+- `https://YOUR_EXTERNAL_IP:5174`
+- `http://YOUR_DOMAIN_NAME` (if configured)
+- `https://YOUR_DOMAIN_NAME` (if configured)
+
+### Security Features
+- JWT authentication with configurable secret
+- Rate limiting enabled
+- Security headers configured
+- HTTPS ready (configure reverse proxy for SSL)
+
+### Database
+- PostgreSQL 15 with persistent volume
+- Automatic database creation and seeding on first run
+- Connection pooling configured
+
+### Frontend
+- Production build with optimized assets
+- Nginx serving static files
+- Gzip compression enabled
+- Proper cache headers
+
+## Troubleshooting
+
+### CORS Errors
+If you still see CORS errors:
+1. Ensure `EXTERNAL_IP` in `.env.production` matches your actual IP
+2. Restart the API container: `docker-compose -f docker-compose.production.yml restart charitypay-api`
+3. Check API logs: `docker-compose -f docker-compose.production.yml logs charitypay-api`
+
+### Connection Refused
+If frontend can't reach the API:
+1. Verify API is running: `docker ps`
+2. Check API health: `curl http://YOUR_EXTERNAL_IP:8081/health`
+3. Ensure firewall allows ports 8081 and 5174
+
+### Database Issues
+If you need to reset the database:
+```bash
+docker-compose -f docker-compose.production.yml down -v
+docker-compose -f docker-compose.production.yml up -d
+```
+
+## Monitoring
+
+View container status:
+```bash
+docker-compose -f docker-compose.production.yml ps
+```
+
+View logs for specific service:
+```bash
+docker-compose -f docker-compose.production.yml logs -f charitypay-api
+docker-compose -f docker-compose.production.yml logs -f charitypay-frontend
+```
+
+## Stopping the Application
 
 ```bash
-git clone <repository-url>
-cd charitypay-dotnet
+docker-compose -f docker-compose.production.yml down
 ```
 
-### 2. Configure Environment
-
+To also remove volumes (database data):
 ```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Edit .env with your settings
-# IMPORTANT: Change all passwords and secret keys!
+docker-compose -f docker-compose.production.yml down -v
 ```
 
-### 3. Choose Deployment Type
+## Next Steps
 
-#### Option A: Simple Deployment (Recommended for Testing)
-Includes: Frontend, API, PostgreSQL, and Adminer
+### For Production Use
+1. **SSL/TLS**: Set up a reverse proxy (nginx/traefik) with Let's Encrypt
+2. **Domain Name**: Configure a proper domain instead of IP address
+3. **Monitoring**: Set up monitoring (Prometheus, Grafana)
+4. **Backups**: Configure automated database backups
+5. **Secrets**: Use proper secret management (Docker secrets, Vault)
 
-```bash
-docker-compose -f docker-compose.simple.yml up -d
-```
+### Environment Variables Reference
 
-Access:
-- Frontend: http://localhost:5173
-- API: http://localhost:5000
-- API Docs (Swagger): http://localhost:5000/swagger
-- Database Admin: http://localhost:8085
-
-#### Option B: Development Deployment
-Includes hot reload and development tools
-
-```bash
-docker-compose -f docker-compose.dev.yml up -d
-```
-
-#### Option C: Production Deployment
-Full stack with monitoring (Prometheus & Grafana)
-
-```bash
-docker-compose up -d
-```
-
-### 4. Initialize Database
-
-The database will be automatically initialized with migrations when the API container starts.
-
-To manually run migrations:
-```bash
-docker-compose exec api dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
-```
-
-## Service URLs
-
-### Simple/Dev Deployment:
-- **Frontend**: http://localhost:5173
-- **API**: http://localhost:5000
-- **Swagger**: http://localhost:5000/swagger
-- **Adminer** (DB UI): http://localhost:8085
-  - Server: `postgres`
-  - Username: from .env `POSTGRES_USER`
-  - Password: from .env `POSTGRES_PASSWORD`
-  - Database: from .env `POSTGRES_DB`
-
-### Production Deployment adds:
-- **Nginx** (Reverse Proxy): http://localhost
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3001
-
-## Verification Steps
-
-1. Check all containers are running:
-```bash
-docker-compose ps
-```
-
-2. Check API health:
-```bash
-curl http://localhost:5000/health
-```
-
-3. Access Swagger UI to test endpoints:
-http://localhost:5000/swagger
-
-## Common Issues
-
-### Port Conflicts
-If ports are already in use, modify the port mappings in the docker-compose file:
-```yaml
-ports:
-  - "8080:5000"  # Change 8080 to available port
-```
-
-### Database Connection Issues
-- Ensure PostgreSQL container is healthy: `docker-compose ps`
-- Check logs: `docker-compose logs postgres`
-- Verify connection string in .env file
-
-### Permission Issues
-On Linux/Mac, you might need to set proper permissions:
-```bash
-chmod +x scripts/*.sh
-```
-
-## Stopping Services
-
-```bash
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes (WARNING: Deletes data)
-docker-compose down -v
-```
-
-## Updating
-
-1. Pull latest changes:
-```bash
-git pull origin main
-```
-
-2. Rebuild containers:
-```bash
-docker-compose build
-docker-compose up -d
-```
-
-3. Run any new migrations:
-```bash
-docker-compose exec api dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
-```
-
-## Security Notes
-
-Before deploying to production:
-1. Change ALL default passwords in .env
-2. Generate strong JWT secret key (min 32 characters)
-3. Use HTTPS with valid SSL certificates
-4. Configure firewall rules
-5. Enable rate limiting
-6. Review and update CORS settings
-7. Disable Swagger in production
-
-## Support
-
-For issues or questions, please check:
-- Application logs: `docker-compose logs api`
-- Database logs: `docker-compose logs postgres`
-- Frontend logs: `docker-compose logs frontend`
+| Variable | Description | Example |
+|----------|-------------|---------|
+| EXTERNAL_IP | Your server's external IP | 194.181.240.37 |
+| DOMAIN_NAME | Your domain (optional) | charity.example.com |
+| DB_PASSWORD | PostgreSQL password | strong-password-here |
+| REDIS_PASSWORD | Redis password | another-strong-password |
+| JWT_SECRET | JWT signing key (32+ chars) | your-256-bit-secret-key-here |
+| POLCARD_CLIENT_ID | Polcard API client ID | provided-by-polcard |
+| POLCARD_CLIENT_SECRET | Polcard API secret | provided-by-polcard |
+| POLCARD_WEBHOOK_SECRET | Webhook validation secret | provided-by-polcard |

@@ -1,21 +1,34 @@
-FROM node:20-alpine
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Set environment variables
-ENV VITE_API_URL=http://charitypay-api:8081/api/v1
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy source code
+# Copy source files
 COPY . .
 
-# Expose port
-EXPOSE 3000
+# Build the application with production API URL
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
-# Start development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

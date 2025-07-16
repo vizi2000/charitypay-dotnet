@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  charitypay-db:
+    image: postgres:15-alpine
+    container_name: charitypay-postgres
+    environment:
+      POSTGRES_DB: charitypay
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-defaultpassword}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - charitypay-network
+
+  charitypay-redis:
+    image: redis:7-alpine
+    container_name: charitypay-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-defaultpassword}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - charitypay-network
+
+  charitypay-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: charitypay-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=charitypay-db;Database=charitypay;Username=postgres;Password=${DB_PASSWORD:-defaultpassword}
+      - JwtSettings__SecretKey=${JWT_SECRET:-your-super-secret-jwt-key-that-should-be-at-least-32-characters}
+      - JwtSettings__Issuer=CharityPay
+      - JwtSettings__Audience=CharityPayUsers
+      - JwtSettings__AccessTokenExpirationMinutes=60
+      - JwtSettings__RefreshTokenExpirationDays=30
+      - Cors__AllowedOrigins__0=http://${EXTERNAL_IP}:5174
+      - Cors__AllowedOrigins__1=https://${EXTERNAL_IP}:5174
+      - Cors__AllowedOrigins__2=http://${DOMAIN_NAME}
+      - Cors__AllowedOrigins__3=https://${DOMAIN_NAME}
+      - PolcardSettings__BaseUrl=https://copilot-uat.polcard.pl
+      - PolcardSettings__ClientId=${POLCARD_CLIENT_ID}
+      - PolcardSettings__ClientSecret=${POLCARD_CLIENT_SECRET}
+      - PolcardSettings__WebhookSecret=${POLCARD_WEBHOOK_SECRET}
+    ports:
+      - "8081:80"
+    depends_on:
+      charitypay-db:
+        condition: service_healthy
+      charitypay-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - charitypay-network
+
+  charitypay-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://${EXTERNAL_IP}:8081/api/v1
+    container_name: charitypay-frontend
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "5174:80"
+    depends_on:
+      - charitypay-api
+    restart: unless-stopped
+    networks:
+      - charitypay-network
+
+networks:
+  charitypay-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

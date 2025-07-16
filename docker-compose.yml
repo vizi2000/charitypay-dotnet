@@ -107,7 +107,7 @@ services:
   charitypay-frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: charitypay-frontend
     restart: unless-stopped
     ports:
