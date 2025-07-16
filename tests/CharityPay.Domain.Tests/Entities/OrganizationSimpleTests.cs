@@ -38,7 +38,7 @@ public class OrganizationSimpleTests
 
     [Theory]
     [InlineData(OrganizationStatus.Pending)]
-    [InlineData(OrganizationStatus.Approved)]
+    [InlineData(OrganizationStatus.Active)]
     [InlineData(OrganizationStatus.Rejected)]
     public void Organization_ShouldAllowValidStatuses(OrganizationStatus status)
     {
@@ -51,9 +51,9 @@ public class OrganizationSimpleTests
             case OrganizationStatus.Pending:
                 organization.Status.Should().Be(OrganizationStatus.Pending); // Default
                 break;
-            case OrganizationStatus.Approved:
+            case OrganizationStatus.Active:
                 organization.Approve();
-                organization.Status.Should().Be(OrganizationStatus.Approved);
+                organization.Status.Should().Be(OrganizationStatus.Active);
                 break;
             case OrganizationStatus.Rejected:
                 organization.Reject();
@@ -63,7 +63,7 @@ public class OrganizationSimpleTests
     }
 
     [Fact]
-    public void Organization_Approve_ShouldChangeStatusToApproved()
+    public void Organization_Approve_ShouldChangeStatusToActive()
     {
         // Arrange
         var organization = CreateTestOrganization();
@@ -73,7 +73,7 @@ public class OrganizationSimpleTests
         organization.Approve(adminNotes);
 
         // Assert
-        organization.Status.Should().Be(OrganizationStatus.Approved);
+        organization.Status.Should().Be(OrganizationStatus.Active);
         organization.AdminNotes.Should().Be(adminNotes);
     }
 

@@ -18,7 +18,7 @@ namespace CharityPay.Application.Tests.Fixtures;
 public class ApplicationTestFixture : IDisposable
 {
     public IServiceProvider ServiceProvider { get; }
-    public ApplicationDbContext DbContext { get; }
+    public CharityPayDbContext DbContext { get; }
     public IMapper Mapper { get; }
 
     public ApplicationTestFixture()
@@ -26,7 +26,7 @@ public class ApplicationTestFixture : IDisposable
         var services = new ServiceCollection();
         
         // Add in-memory database
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<CharityPayDbContext>(options =>
             options.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()));
 
         // Add AutoMapper
@@ -39,7 +39,7 @@ public class ApplicationTestFixture : IDisposable
         ServiceProvider = services.BuildServiceProvider();
         
         // Get instances
-        DbContext = ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        DbContext = ServiceProvider.GetRequiredService<CharityPayDbContext>();
         Mapper = ServiceProvider.GetRequiredService<IMapper>();
 
         // Ensure database is created
@@ -119,7 +119,7 @@ public class ApplicationTestCollection : ICollectionFixture<ApplicationTestFixtu
 public abstract class ApplicationTestBase : IAsyncLifetime
 {
     protected readonly ApplicationTestFixture Fixture;
-    protected readonly ApplicationDbContext DbContext;
+    protected readonly CharityPayDbContext DbContext;
     protected readonly IMapper Mapper;
 
     protected ApplicationTestBase(ApplicationTestFixture fixture)
@@ -170,7 +170,7 @@ public class ServiceTestHelper
     /// Creates an OrganizationService with mocked dependencies for testing
     /// </summary>
     public static OrganizationService CreateOrganizationService(
-        ApplicationDbContext context,
+        CharityPayDbContext context,
         IMapper mapper,
         ILogger<OrganizationService> logger = null)
     {
@@ -182,7 +182,7 @@ public class ServiceTestHelper
     /// Creates a PaymentService with mocked dependencies for testing
     /// </summary>
     public static PaymentService CreatePaymentService(
-        ApplicationDbContext context,
+        CharityPayDbContext context,
         IMapper mapper,
         ILogger<PaymentService> logger = null)
     {
@@ -194,7 +194,7 @@ public class ServiceTestHelper
     /// Creates an AuthenticationService with mocked dependencies for testing
     /// </summary>
     public static AuthenticationService CreateAuthenticationService(
-        ApplicationDbContext context,
+        CharityPayDbContext context,
         IPasswordService passwordService = null,
         IJwtService jwtService = null,
         ILogger<AuthenticationService> logger = null)

@@ -30,8 +30,8 @@ public class OrganizationsControllerTests : ApiTestBase
         });
 
         organizations.Should().NotBeNull();
-        organizations.Should().AllSatisfy(org => 
-            org.Status.Should().Be(OrganizationStatus.Approved));
+        organizations.Should().AllSatisfy(org =>
+            org.Status.Should().Be(OrganizationStatus.Active));
     }
 
     [IntegrationTest]

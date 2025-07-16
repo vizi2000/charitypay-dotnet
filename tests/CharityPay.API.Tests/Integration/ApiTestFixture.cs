@@ -166,7 +166,7 @@ public class ApiTestFixture : IAsyncLifetime
         var organization = TestDataBuilders.Organization()
             .WithUser(orgUser)
             .WithName("Test Organization")
-            .AsApproved()
+            .AsActive()()
             .Build();
 
         context.Organizations.Add(organization);
@@ -315,7 +315,7 @@ public class ApiTestFixture : IAsyncLifetime
     public CharityPayDbContext GetDbContext()
     {
         var scope = _factory.CreateScope();
-        return scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        return scope.ServiceProvider.GetRequiredService<CharityPayDbContext>();
     }
 }
 

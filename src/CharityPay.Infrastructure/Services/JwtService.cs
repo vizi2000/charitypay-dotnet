@@ -80,6 +80,11 @@ public class JwtService : IJwtService
         return true;
     }
 
+    public void InvalidateRefreshToken(string refreshToken)
+    {
+        _refreshTokens.Remove(refreshToken);
+    }
+
     public (string accessToken, string refreshToken) RefreshTokens(string oldRefreshToken, User user)
     {
         if (!ValidateRefreshToken(oldRefreshToken))

@@ -299,7 +299,7 @@ public static class DatabaseTestDataHelper
 
             var organization = CharityPay.Domain.Tests.Builders.TestDataBuilders.Organization()
                 .WithUser(orgUser)
-                .WithStatus(i < 8 ? CharityPay.Domain.Enums.OrganizationStatus.Approved : CharityPay.Domain.Enums.OrganizationStatus.Pending)
+                .WithStatus(i < 8 ? CharityPay.Domain.Enums.OrganizationStatus.Active : CharityPay.Domain.Enums.OrganizationStatus.Pending)
                 .Build();
 
             organizations.Add(organization);
@@ -309,7 +309,7 @@ public static class DatabaseTestDataHelper
         await context.SaveChangesAsync();
 
         // Create payments for approved organizations
-        var approvedOrgs = organizations.Where(o => o.Status == CharityPay.Domain.Enums.OrganizationStatus.Approved).ToList();
+        var approvedOrgs = organizations.Where(o => o.Status == CharityPay.Domain.Enums.OrganizationStatus.Active).ToList();
         foreach (var org in approvedOrgs)
         {
             var payments = CharityPay.Domain.Tests.Builders.TestDataBuilders.Payment()
@@ -345,7 +345,7 @@ public static class DatabaseTestDataHelper
 
                 var organization = CharityPay.Domain.Tests.Builders.TestDataBuilders.Organization()
                     .WithUser(orgUser)
-                    .AsApproved()
+                    .AsActive()()
                     .Build();
 
                 organizations.Add(organization);
