@@ -49,8 +49,29 @@ export const organizationsAPI = {
   // Get all organizations
   async getAll() {
     try {
-      const response = await api.get('/demo/organizations');
-      return response.data;
+      const response = await api.get('/organizations');
+      const organizations = response.data.data.items || [];
+      
+      // Map API response fields to frontend expected fields
+      return organizations.map(org => ({
+        id: org.id,
+        name: org.name,
+        description: org.description,
+        category: org.category,
+        location: org.location,
+        target_amount: org.targetAmount,
+        collected_amount: org.collectedAmount,
+        contact_email: org.contactEmail,
+        website: org.website,
+        phone: org.phone,
+        address: org.address,
+        logo_url: org.logoUrl,
+        primary_color: org.primaryColor,
+        secondary_color: org.secondaryColor,
+        custom_message: org.customMessage,
+        status: org.status === 3 ? 'approved' : 'pending',
+        created_at: org.createdAt
+      }));
     } catch (error) {
       throw new Error(`Failed to fetch organizations: ${error.message}`);
     }
@@ -59,14 +80,8 @@ export const organizationsAPI = {
   // Get organization by ID
   async getById(id) {
     try {
-      const response = await api.get(`/demo/organizations`);
-      // Find the organization by ID from the demo data
-      const organizations = response.data.data || [];
-      const organization = organizations.find(org => org.id === parseInt(id));
-      if (!organization) {
-        throw new Error('Organization not found');
-      }
-      return { data: organization };
+      const response = await api.get(`/organizations/${id}`);
+      return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch organization: ${error.message}`);
     }

@@ -182,7 +182,7 @@ app.MapGet("/", () => new
 
 // Health endpoint is handled by HealthController
 
-// Apply migrations on startup in development
+// Apply migrations and seed data on startup in development
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -194,6 +194,9 @@ if (app.Environment.IsDevelopment())
         await dbContext.Database.EnsureDeletedAsync(); // Clean slate for dev
         await dbContext.Database.EnsureCreatedAsync();
         app.Logger.LogInformation("Database schema created successfully");
+        
+        // Seed the database with sample data
+        await app.SeedDatabaseAsync();
     }
     catch (Exception ex)
     {

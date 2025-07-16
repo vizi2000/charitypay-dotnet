@@ -12,6 +12,7 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from '../contexts/LanguageContext';
+import { organizationsAPI } from '../utils/api';
 
 export function OrganizationPage() {
   const { organizationId } = useParams();
@@ -30,13 +31,29 @@ export function OrganizationPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/organizations/${organizationId}`);
-      if (!response.ok) {
-        throw new Error('Organization not found');
-      }
-      
-      const data = await response.json();
-      setOrganization(data);
+      const response = await organizationsAPI.getById(organizationId);
+      // Map API response fields to frontend expected fields
+      const mappedOrg = {
+        id: response.data.id,
+        name: response.data.name,
+        description: response.data.description,
+        category: response.data.category,
+        location: response.data.location,
+        target_amount: response.data.targetAmount,
+        collected_amount: response.data.collectedAmount,
+        contact_email: response.data.contactEmail,
+        website: response.data.website,
+        phone: response.data.phone,
+        address: response.data.address,
+        logo_url: response.data.logoUrl,
+        cover_image_url: null, // Not in API yet
+        primary_color: response.data.primaryColor,
+        secondary_color: response.data.secondaryColor,
+        custom_message: response.data.customMessage,
+        status: response.data.status === 3 ? 'approved' : 'pending',
+        created_at: response.data.createdAt
+      };
+      setOrganization(mappedOrg);
     } catch (err) {
       setError(err.message);
     } finally {

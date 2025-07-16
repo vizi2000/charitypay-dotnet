@@ -1,1 +1,0 @@
-.tiptap p.is-editor-empty:first-child:before{color:#a3a8ac;content:attr(data-placeholder);float:left;height:0;pointer-events:none}
