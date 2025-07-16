@@ -32,7 +32,9 @@ export function PaymentSuccess() {
           url: window.location.origin,
         });
       } catch (err) {
-        console.log('Share cancelled or failed');
+        if (import.meta.env.DEV) {
+          console.error('Share cancelled or failed', err);
+        }
       }
     } else {
       // Fallback to copying to clipboard
@@ -40,7 +42,9 @@ export function PaymentSuccess() {
         await navigator.clipboard.writeText(shareMessage + ' ' + window.location.origin);
         alert('Message copied to clipboard!');
       } catch (err) {
-        console.log('Copy failed');
+        if (import.meta.env.DEV) {
+          console.error('Copy failed', err);
+        }
       }
     }
   };

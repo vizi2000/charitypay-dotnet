@@ -148,7 +148,9 @@ export function DonationPage() {
         response = await paymentsAPI.initiate(paymentData);
       } catch (apiError) {
         // Demo mode: If API fails, show QR code with demo URL
-        console.log('API failed, showing demo QR code');
+        if (import.meta.env.DEV) {
+          console.error('Payment API failed, showing demo QR code', apiError);
+        }
         const demoUrl = `https://demo-payment.fiserv.com/pay/${Math.random().toString(36).substr(2, 9)}?amount=${getEffectiveAmount()}&org=${organizationId}`;
         await generateQRCode(demoUrl);
         return; // Exit early for demo
