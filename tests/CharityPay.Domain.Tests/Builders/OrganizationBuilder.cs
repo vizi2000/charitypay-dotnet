@@ -5,108 +5,67 @@ namespace CharityPay.Domain.Tests.Builders;
 
 public class OrganizationBuilder
 {
-    private Organization _organization;
-
-    public OrganizationBuilder()
-    {
-        _organization = new Organization
-        {
-            Id = Guid.NewGuid(),
-            Name = $"Test Organization {Guid.NewGuid():N}",
-            Description = "Test organization description",
-            ContactEmail = $"contact{Guid.NewGuid():N}@example.com",
-            ContactPhone = "+48123456789",
-            Status = OrganizationStatus.Pending,
-            Category = OrganizationCategory.Inne,
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow,
-            VerifiedAt = null,
-            WebsiteUrl = "https://example.org",
-            Address = "Test Street 123",
-            City = "Test City",
-            PostalCode = "00-000",
-            Country = "Poland",
-            PrimaryColor = "#007bff",
-            SecondaryColor = "#6c757d"
-        };
-    }
-
-    public OrganizationBuilder WithId(Guid id)
-    {
-        _organization.Id = id;
-        return this;
-    }
+    private string _name = "Test Organization";
+    private string _description = "Test description";
+    private string _category = "Inne";
+    private string _location = "Test City";
+    private decimal _targetAmount = 1000m;
+    private string _contactEmail = "contact@example.com";
+    private Guid _userId = Guid.NewGuid();
 
     public OrganizationBuilder WithName(string name)
     {
-        _organization.Name = name;
+        _name = name;
         return this;
     }
 
     public OrganizationBuilder WithUser(User user)
     {
-        _organization.UserId = user.Id;
-        _organization.User = user;
+        _userId = user.Id;
         return this;
     }
 
-    public OrganizationBuilder AsApproved()
+    public OrganizationBuilder AsActive()
     {
-        _organization.Status = OrganizationStatus.Approved;
-        _organization.VerifiedAt = DateTimeOffset.UtcNow.AddDays(-7);
+        _status = OrganizationStatus.Active;
         return this;
     }
 
     public OrganizationBuilder AsPending()
     {
-        _organization.Status = OrganizationStatus.Pending;
-        _organization.VerifiedAt = null;
+        _status = OrganizationStatus.Pending;
         return this;
     }
 
     public OrganizationBuilder AsRejected()
     {
-        _organization.Status = OrganizationStatus.Rejected;
+        _status = OrganizationStatus.Rejected;
         return this;
     }
 
-    public OrganizationBuilder AsInactive()
+    private OrganizationStatus _status = OrganizationStatus.Pending;
+
+    public Organization Build()
     {
-        _organization.IsActive = false;
-        return this;
+        var organization = Organization.Create(_name, _description, _category, _location, _targetAmount, _contactEmail, _userId);
+        if (_status == OrganizationStatus.Active)
+        {
+            organization.Approve();
+        }
+        else if (_status == OrganizationStatus.Rejected)
+        {
+            organization.Reject();
+        }
+        return organization;
     }
 
-    public OrganizationBuilder WithCategory(OrganizationCategory category)
-    {
-        _organization.Category = category;
-        return this;
-    }
-
-    public OrganizationBuilder WithLocation(string city, string country = "Poland")
-    {
-        _organization.City = city;
-        _organization.Country = country;
-        return this;
-    }
-
-    public OrganizationBuilder WithBranding(string logoUrl, string primaryColor, string secondaryColor)
-    {
-        _organization.LogoUrl = logoUrl;
-        _organization.PrimaryColor = primaryColor;
-        _organization.SecondaryColor = secondaryColor;
-        return this;
-    }
-
-    public Organization Build() => _organization;
-    
     public List<Organization> BuildMany(int count)
     {
-        var organizations = new List<Organization>();
+        var list = new List<Organization>();
         for (int i = 0; i < count; i++)
         {
-            organizations.Add(new OrganizationBuilder().Build());
+            list.Add(Build());
         }
-        return organizations;
+        return list;
     }
 }

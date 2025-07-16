@@ -26,8 +26,8 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task GetOrganizationsAsync_ShouldReturnApprovedOrganizations()
     {
         // Arrange
-        var approvedOrg1 = TestDataBuilders.Organization().AsApproved().Build();
-        var approvedOrg2 = TestDataBuilders.Organization().AsApproved().Build();
+        var approvedOrg1 = TestDataBuilders.Organization().AsActive()().Build();
+        var approvedOrg2 = TestDataBuilders.Organization().AsActive()().Build();
         var pendingOrg = TestDataBuilders.Organization().AsPending().Build();
         
         DbContext.Organizations.AddRange(approvedOrg1, approvedOrg2, pendingOrg);
@@ -39,8 +39,8 @@ public class OrganizationServiceTests : ApplicationTestBase
         // Assert
         result.Should().NotBeNull();
         result.Items.Should().HaveCount(2);
-        result.Items.Should().AllSatisfy(org => 
-            org.Status.Should().Be(OrganizationStatus.Approved));
+        result.Items.Should().AllSatisfy(org =>
+            org.Status.Should().Be(OrganizationStatus.Active));
     }
 
     [UnitTest]
@@ -48,7 +48,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     {
         // Arrange
         var organizations = TestDataBuilders.Organization()
-            .AsApproved()
+            .AsActive()()
             .BuildMany(15);
         
         DbContext.Organizations.AddRange(organizations);
@@ -77,7 +77,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     {
         // Arrange
         var organization = TestDataBuilders.Organization()
-            .AsApproved()
+            .AsActive()()
             .WithName("Test Charity")
             .Build();
         
@@ -91,7 +91,7 @@ public class OrganizationServiceTests : ApplicationTestBase
         result.Should().NotBeNull();
         result.Id.Should().Be(organization.Id);
         result.Name.Should().Be("Test Charity");
-        result.Status.Should().Be(OrganizationStatus.Approved);
+        result.Status.Should().Be(OrganizationStatus.Active);
     }
 
     [UnitTest]
@@ -208,7 +208,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task GetOrganizationStatsAsync_ShouldReturnCorrectStatistics()
     {
         // Arrange
-        var organization = TestDataBuilders.Organization().AsApproved().Build();
+        var organization = TestDataBuilders.Organization().AsActive()().Build();
         var payments = new[]
         {
             TestDataBuilders.Payment().WithOrganization(organization).WithAmount(100m).AsCompleted().Build(),
@@ -236,7 +236,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task GetOrganizationStatsAsync_WithNoPayments_ShouldReturnZeroStats()
     {
         // Arrange
-        var organization = TestDataBuilders.Organization().AsApproved().Build();
+        var organization = TestDataBuilders.Organization().AsActive()().Build();
         DbContext.Organizations.Add(organization);
         await DbContext.SaveChangesAsync();
 
@@ -271,9 +271,9 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task GetOrganizationsAsync_WithCategoryFilter_ShouldReturnFilteredResults(OrganizationCategory category)
     {
         // Arrange
-        var religiaOrg = TestDataBuilders.Organization().AsApproved().WithCategory(OrganizationCategory.Religia).Build();
-        var dzieciOrg = TestDataBuilders.Organization().AsApproved().WithCategory(OrganizationCategory.Dzieci).Build();
-        var zwierzetaOrg = TestDataBuilders.Organization().AsApproved().WithCategory(OrganizationCategory.Zwierzeta).Build();
+        var religiaOrg = TestDataBuilders.Organization().AsActive()().WithCategory(OrganizationCategory.Religia).Build();
+        var dzieciOrg = TestDataBuilders.Organization().AsActive()().WithCategory(OrganizationCategory.Dzieci).Build();
+        var zwierzetaOrg = TestDataBuilders.Organization().AsActive()().WithCategory(OrganizationCategory.Zwierzeta).Build();
         
         DbContext.Organizations.AddRange(religiaOrg, dzieciOrg, zwierzetaOrg);
         await DbContext.SaveChangesAsync();
@@ -291,9 +291,9 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task SearchOrganizationsAsync_ShouldFindByName()
     {
         // Arrange
-        var org1 = TestDataBuilders.Organization().AsApproved().WithName("Animal Rescue Foundation").Build();
-        var org2 = TestDataBuilders.Organization().AsApproved().WithName("Children's Hospital Fund").Build();
-        var org3 = TestDataBuilders.Organization().AsApproved().WithName("Animal Welfare Society").Build();
+        var org1 = TestDataBuilders.Organization().AsActive()().WithName("Animal Rescue Foundation").Build();
+        var org2 = TestDataBuilders.Organization().AsActive()().WithName("Children's Hospital Fund").Build();
+        var org3 = TestDataBuilders.Organization().AsActive()().WithName("Animal Welfare Society").Build();
         
         DbContext.Organizations.AddRange(org1, org2, org3);
         await DbContext.SaveChangesAsync();
@@ -312,8 +312,8 @@ public class OrganizationServiceTests : ApplicationTestBase
     public async Task GetOrganizationPaymentsAsync_ShouldReturnOrganizationPayments()
     {
         // Arrange
-        var organization = TestDataBuilders.Organization().AsApproved().Build();
-        var otherOrganization = TestDataBuilders.Organization().AsApproved().Build();
+        var organization = TestDataBuilders.Organization().AsActive()().Build();
+        var otherOrganization = TestDataBuilders.Organization().AsActive()().Build();
         
         var orgPayments = TestDataBuilders.Payment().WithOrganization(organization).BuildMany(3);
         var otherPayments = TestDataBuilders.Payment().WithOrganization(otherOrganization).BuildMany(2);
@@ -337,7 +337,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     {
         // Arrange
         var organization = TestDataBuilders.Organization()
-            .AsApproved()
+            .AsActive()()
             .Build(); // Default is active
 
         DbContext.Organizations.Add(organization);
@@ -355,7 +355,7 @@ public class OrganizationServiceTests : ApplicationTestBase
     {
         // Arrange
         var organization = TestDataBuilders.Organization()
-            .AsApproved()
+            .AsActive()()
             .AsInactive()
             .Build();
 

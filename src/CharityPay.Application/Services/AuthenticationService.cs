@@ -125,7 +125,7 @@ public class AuthenticationService : IAuthenticationService
     
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        // TODO: Implement refresh token invalidation
+        _jwtService.InvalidateRefreshToken(refreshToken);
         await Task.CompletedTask;
         _logger.LogInformation("User logged out");
     }
