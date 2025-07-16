@@ -3,74 +3,70 @@ using CharityPay.Domain.Enums;
 
 namespace CharityPay.Domain.Tests.Builders;
 
-public class UserBuilder
+/// <summary>
+/// Simplified builder for <see cref="User"/> that utilises the factory methods
+/// provided by the domain model. Older implementations set properties directly
+/// which is incompatible with the current private setters.
+/// </summary>
+public sealed class UserBuilder
 {
-    private User _user;
-
-    public UserBuilder()
-    {
-        _user = new User
-        {
-            Id = Guid.NewGuid(),
-            Email = $"test{Guid.NewGuid():N}@example.com",
-            FirstName = "Test",
-            LastName = "User",
-            Role = UserRole.Organization,
-            PasswordHash = "hashed_password",
-            IsActive = true,
-            EmailConfirmed = true,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
-        };
-    }
-
-    public UserBuilder WithId(Guid id)
-    {
-        _user.Id = id;
-        return this;
-    }
+    private string _email = $"test{Guid.NewGuid():N}@example.com";
+    private string _passwordHash = "hashed_password";
+    private string _fullName = "Test User";
+    private UserRole _role = UserRole.Organization;
+    private bool _inactive;
 
     public UserBuilder WithEmail(string email)
     {
-        _user.Email = email;
+        _email = email;
         return this;
     }
 
-    public UserBuilder WithName(string firstName, string lastName)
+    public UserBuilder WithPasswordHash(string hash)
     {
-        _user.FirstName = firstName;
-        _user.LastName = lastName;
+        _passwordHash = hash;
+        return this;
+    }
+
+    public UserBuilder WithFullName(string name)
+    {
+        _fullName = name;
         return this;
     }
 
     public UserBuilder AsAdmin()
     {
-        _user.Role = UserRole.Admin;
-        _user.Email = $"admin{Guid.NewGuid():N}@example.com";
-        return this;
-    }
-
-    public UserBuilder AsOrganization()
-    {
-        _user.Role = UserRole.Organization;
+        _role = UserRole.Admin;
         return this;
     }
 
     public UserBuilder AsInactive()
     {
-        _user.IsActive = false;
+        _inactive = true;
         return this;
     }
 
-    public User Build() => _user;
-    
+    public User Build()
+    {
+        var user = User.Create(_email, _passwordHash, _fullName, _role);
+        if (_inactive)
+        {
+            user.Deactivate();
+        }
+        return user;
+    }
+
     public List<User> BuildMany(int count)
     {
-        var users = new List<User>();
+        var list = new List<User>();
         for (int i = 0; i < count; i++)
         {
-            users.Add(new UserBuilder().Build());
+            list.Add(new UserBuilder()
+                .WithEmail(_email)
+                .WithPasswordHash(_passwordHash)
+                .WithFullName(_fullName)
+                .Build());
         }
-        return users;
+        return list;
     }
 }

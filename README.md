@@ -253,13 +253,27 @@ docker-compose logs -f
 
 ### Production Deployment
 
-1. Set production environment variables
-2. Run database migrations
-3. Build and publish:
+The project ships with a helper script `start-production.sh` which provisions the
+containers defined in `docker-compose.production.yml`. To deploy to a host such
+as **194.181.240.37**:
+
+1. Copy the provided template and edit your settings:
+   ```bash
+   cp .env.production.example .env.production
+   nano .env.production   # set EXTERNAL_IP=194.181.240.37 and strong secrets
+   ```
+2. Start the stack:
+   ```bash
+   ./start-production.sh
+   ```
+   The API will run on port `8081` and the frontend will be available at
+   `http://194.181.240.37:5174`.
+
+For advanced scenarios you may still publish the application manually and deploy
+to a cloud provider:
    ```bash
    dotnet publish -c Release -o ./publish
    ```
-4. Deploy to Azure App Service, AWS, or Kubernetes
 
 ## Monitoring
 
