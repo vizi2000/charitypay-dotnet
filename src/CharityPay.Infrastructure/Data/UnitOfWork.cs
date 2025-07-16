@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork
     private IUserRepository? _userRepository;
     private IOrganizationRepository? _organizationRepository;
     private IPaymentRepository? _paymentRepository;
+    private IRefreshTokenRepository? _refreshTokenRepository;
 
     public UnitOfWork(CharityPayDbContext context)
     {
@@ -19,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users => _userRepository ??= new UserRepository(_context);
     public IOrganizationRepository Organizations => _organizationRepository ??= new OrganizationRepository(_context);
     public IPaymentRepository Payments => _paymentRepository ??= new PaymentRepository(_context);
+    public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository ??= new RefreshTokenRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

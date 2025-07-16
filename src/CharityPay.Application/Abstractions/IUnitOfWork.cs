@@ -23,6 +23,11 @@ public interface IUnitOfWork : IDisposable
     IPaymentRepository Payments { get; }
     
     /// <summary>
+    /// Gets the refresh token repository.
+    /// </summary>
+    IRefreshTokenRepository RefreshTokens { get; }
+    
+    /// <summary>
     /// Saves all changes made in this unit of work to the database.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>

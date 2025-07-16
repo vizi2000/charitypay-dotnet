@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using CharityPay.Application.Configuration;
 using CharityPay.Application.Services;
@@ -13,7 +12,6 @@ namespace CharityPay.Infrastructure.Services;
 public class JwtService : IJwtService
 {
     private readonly JwtSettings _jwtSettings;
-    private readonly Dictionary<string, DateTime> _refreshTokens = new(); // In production, use a proper store
 
     public JwtService(IOptions<JwtSettings> jwtSettings)
     {
@@ -51,52 +49,5 @@ public class JwtService : IJwtService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
-    }
-
-    public string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        var refreshToken = Convert.ToBase64String(randomNumber);
-        
-        // Store refresh token with expiration
-        _refreshTokens[refreshToken] = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
-        
-        return refreshToken;
-    }
-
-    public bool ValidateRefreshToken(string refreshToken)
-    {
-        if (!_refreshTokens.TryGetValue(refreshToken, out var expiration))
-            return false;
-
-        if (expiration < DateTime.UtcNow)
-        {
-            _refreshTokens.Remove(refreshToken);
-            return false;
-        }
-
-        return true;
-    }
-
-    public void InvalidateRefreshToken(string refreshToken)
-    {
-        _refreshTokens.Remove(refreshToken);
-    }
-
-    public (string accessToken, string refreshToken) RefreshTokens(string oldRefreshToken, User user)
-    {
-        if (!ValidateRefreshToken(oldRefreshToken))
-            throw new InvalidOperationException("Invalid refresh token");
-
-        // Remove old refresh token
-        _refreshTokens.Remove(oldRefreshToken);
-
-        // Generate new tokens
-        var newAccessToken = GenerateAccessToken(user);
-        var newRefreshToken = GenerateRefreshToken();
-
-        return (newAccessToken, newRefreshToken);
     }
 }

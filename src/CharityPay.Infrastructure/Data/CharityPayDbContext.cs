@@ -20,6 +20,7 @@ public class CharityPayDbContext : DbContext
     public DbSet<IoTDevice> IoTDevices { get; set; } = null!;
     public DbSet<DeviceHeartbeat> DeviceHeartbeats { get; set; } = null!;
     public DbSet<DeviceTransaction> DeviceTransactions { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -206,6 +207,24 @@ public class CharityPayDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.PaymentId)
                   .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.ExpiresAt).IsRequired();
+            entity.Property(e => e.IsRevoked).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.ExpiresAt);
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

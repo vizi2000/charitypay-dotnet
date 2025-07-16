@@ -18,19 +18,22 @@ public class AuthenticationService : IAuthenticationService
     private readonly ILogger<AuthenticationService> _logger;
     private readonly IJwtService _jwtService;
     private readonly IPasswordService _passwordService;
+    private readonly IRefreshTokenService _refreshTokenService;
     
     public AuthenticationService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<AuthenticationService> logger,
         IJwtService jwtService,
-        IPasswordService passwordService)
+        IPasswordService passwordService,
+        IRefreshTokenService refreshTokenService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
         _jwtService = jwtService;
         _passwordService = passwordService;
+        _refreshTokenService = refreshTokenService;
     }
     
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
@@ -48,7 +51,7 @@ public class AuthenticationService : IAuthenticationService
         }
         
         var token = _jwtService.GenerateAccessToken(user);
-        var refreshToken = _jwtService.GenerateRefreshToken();
+        var refreshToken = await _refreshTokenService.CreateRefreshTokenAsync(user.Id, cancellationToken);
         
         var userDto = _mapper.Map<UserDto>(user);
         
@@ -102,13 +105,36 @@ public class AuthenticationService : IAuthenticationService
     
     public async Task<LoginResponse> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        if (!_jwtService.ValidateRefreshToken(refreshToken))
+        var user = await _refreshTokenService.ValidateRefreshTokenAsync(refreshToken, cancellationToken);
+        
+        if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid refresh token");
         }
         
-        // TODO: Get user from refresh token store
-        throw new NotImplementedException("Refresh token user lookup not yet implemented");
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Account is inactive");
+        }
+        
+        // Revoke the old refresh token
+        await _refreshTokenService.RevokeRefreshTokenAsync(refreshToken, cancellationToken);
+        
+        // Generate new tokens
+        var newAccessToken = _jwtService.GenerateAccessToken(user);
+        var newRefreshToken = await _refreshTokenService.CreateRefreshTokenAsync(user.Id, cancellationToken);
+        
+        var userDto = _mapper.Map<UserDto>(user);
+        
+        _logger.LogInformation("User {Email} refreshed their token", user.Email);
+        
+        return new LoginResponse
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken,
+            ExpiresIn = 3600, // 1 hour
+            User = userDto
+        };
     }
     
     public async Task<UserDto> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -125,8 +151,7 @@ public class AuthenticationService : IAuthenticationService
     
     public async Task LogoutAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        _jwtService.InvalidateRefreshToken(refreshToken);
-        await Task.CompletedTask;
+        await _refreshTokenService.RevokeRefreshTokenAsync(refreshToken, cancellationToken);
         _logger.LogInformation("User logged out");
     }
     
