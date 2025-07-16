@@ -3,121 +3,130 @@ using CharityPay.Domain.Enums;
 
 namespace CharityPay.Domain.Tests.Builders;
 
-public class PaymentBuilder
+/// <summary>
+/// Builder for <see cref="Payment"/> respecting domain invariants.
+/// </summary>
+public sealed class PaymentBuilder
 {
-    private Payment _payment;
+    private decimal _amount = 100m;
+    private PaymentMethod _method = PaymentMethod.Card;
+    private string _donorName = "Test Donor";
+    private string? _donorEmail = $"donor{Guid.NewGuid():N}@example.com";
+    private string? _donorPhone = "+48123456789";
+    private Guid _organizationId = Guid.NewGuid();
 
-    public PaymentBuilder()
-    {
-        _payment = new Payment
-        {
-            Id = Guid.NewGuid(),
-            Amount = 100.00m,
-            Currency = "PLN",
-            Status = PaymentStatus.Pending,
-            Method = PaymentMethod.Card,
-            DonorEmail = $"donor{Guid.NewGuid():N}@example.com",
-            DonorName = "Test Donor",
-            DonorPhone = "+48123456789",
-            IsAnonymous = false,
-            Message = "Test donation message",
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow,
-            TransactionId = $"TEST_{Guid.NewGuid():N}",
-            ProviderOrderId = $"ORDER_{Guid.NewGuid():N}"
-        };
-    }
-
-    public PaymentBuilder WithId(Guid id)
-    {
-        _payment.Id = id;
-        return this;
-    }
+    private bool _complete;
+    private bool _fail;
+    private bool _cancel;
+    private string? _transactionId;
+    private string? _approvalCode;
+    private string? _orderId;
+    private string? _checkoutId;
+    private string? _redirectUrl;
 
     public PaymentBuilder WithAmount(decimal amount)
     {
-        _payment.Amount = amount;
-        return this;
-    }
-
-    public PaymentBuilder WithOrganization(Organization organization)
-    {
-        _payment.OrganizationId = organization.Id;
-        _payment.Organization = organization;
-        return this;
-    }
-
-    public PaymentBuilder WithDonor(string email, string name, string phone = null)
-    {
-        _payment.DonorEmail = email;
-        _payment.DonorName = name;
-        _payment.DonorPhone = phone;
-        return this;
-    }
-
-    public PaymentBuilder AsAnonymous()
-    {
-        _payment.IsAnonymous = true;
-        _payment.DonorName = "Anonymous";
+        _amount = amount;
         return this;
     }
 
     public PaymentBuilder WithMethod(PaymentMethod method)
     {
-        _payment.Method = method;
+        _method = method;
         return this;
     }
 
-    public PaymentBuilder AsPending()
+    public PaymentBuilder WithOrganization(Organization organization)
     {
-        _payment.Status = PaymentStatus.Pending;
-        _payment.CompletedAt = null;
+        _organizationId = organization.Id;
         return this;
     }
 
-    public PaymentBuilder AsCompleted()
+    public PaymentBuilder WithDonor(string name, string? email = null, string? phone = null)
     {
-        _payment.Status = PaymentStatus.Completed;
-        _payment.CompletedAt = DateTimeOffset.UtcNow;
+        _donorName = name;
+        _donorEmail = email;
+        _donorPhone = phone;
         return this;
     }
 
-    public PaymentBuilder AsFailed()
+    public PaymentBuilder AsAnonymous()
     {
-        _payment.Status = PaymentStatus.Failed;
-        _payment.FailureReason = "Test failure reason";
+        _donorName = "Anonymous";
         return this;
     }
 
-    public PaymentBuilder AsCancelled()
+    public PaymentBuilder WithFiservDetails(string? orderId, string? checkoutId, string? redirectUrl)
     {
-        _payment.Status = PaymentStatus.Cancelled;
+        _orderId = orderId;
+        _checkoutId = checkoutId;
+        _redirectUrl = redirectUrl;
         return this;
     }
 
-    public PaymentBuilder WithTransactionDetails(string transactionId, string providerOrderId)
+    public PaymentBuilder Completed(string? transactionId = null, string? approvalCode = null)
     {
-        _payment.TransactionId = transactionId;
-        _payment.ProviderOrderId = providerOrderId;
+        _complete = true;
+        _transactionId = transactionId;
+        _approvalCode = approvalCode;
         return this;
     }
 
-    public PaymentBuilder WithCreatedAt(DateTimeOffset createdAt)
+    public PaymentBuilder Failed()
     {
-        _payment.CreatedAt = createdAt;
-        _payment.UpdatedAt = createdAt;
+        _fail = true;
         return this;
     }
 
-    public Payment Build() => _payment;
-    
+    public PaymentBuilder Cancelled()
+    {
+        _cancel = true;
+        return this;
+    }
+
+    public Payment Build()
+    {
+        var payment = Payment.Create(
+            _amount,
+            _method,
+            _organizationId,
+            _donorName,
+            _donorEmail,
+            _donorPhone);
+
+        if (_orderId != null || _checkoutId != null || _redirectUrl != null)
+        {
+            payment.UpdateFiservDetails(_orderId, _checkoutId, _redirectUrl);
+        }
+
+        if (_complete)
+        {
+            payment.Complete(_transactionId, _approvalCode);
+        }
+        else if (_fail)
+        {
+            payment.Fail();
+        }
+        else if (_cancel)
+        {
+            payment.Cancel();
+        }
+
+        return payment;
+    }
+
     public List<Payment> BuildMany(int count)
     {
-        var payments = new List<Payment>();
+        var list = new List<Payment>();
         for (int i = 0; i < count; i++)
         {
-            payments.Add(new PaymentBuilder().Build());
+            list.Add(new PaymentBuilder()
+                .WithAmount(_amount)
+                .WithMethod(_method)
+                .WithDonor(_donorName, _donorEmail, _donorPhone)
+                .WithFiservDetails(_orderId, _checkoutId, _redirectUrl)
+                .Build());
         }
-        return payments;
+        return list;
     }
 }
