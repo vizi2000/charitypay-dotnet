@@ -77,7 +77,9 @@ export function OrganizationPage() {
           url: window.location.href
         });
       } catch (err) {
-        console.log('Error sharing:', err);
+        if (import.meta.env.DEV) {
+          console.error('Error sharing:', err);
+        }
       }
     } else {
       // Fallback: copy to clipboard
