@@ -75,6 +75,19 @@ public class DemoController : ControllerBase
                 location = "Wrocław",
                 logo = (string?)null,
                 created_at = DateTimeOffset.UtcNow.AddDays(-10)
+            },
+            new
+            {
+                id = 6,
+                name = "Hospicjum Dobry Samarytanin",
+                description = "Zapewniamy wsparcie osobom terminalnie chorym oraz ich rodzinom.",
+                status = "approved",
+                collected_amount = 15500.00m,
+                target_amount = 60000.00m,
+                category = "zdrowie",
+                location = "Poznań",
+                logo = (string?)null,
+                created_at = DateTimeOffset.UtcNow.AddDays(-5)
             }
         };
 

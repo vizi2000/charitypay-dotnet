@@ -37,7 +37,8 @@ public class DatabaseSeeder
                 User.Create("admin@caritas.pl", "hashedPassword", "Admin Caritas", UserRole.Organization),
                 User.Create("admin@parafiamatki.pl", "hashedPassword", "Admin Parafia", UserRole.Organization),
                 User.Create("admin@fundacjadzieciom.pl", "hashedPassword", "Admin Fundacja", UserRole.Organization),
-                User.Create("admin@schronisko.pl", "hashedPassword", "Admin Schronisko", UserRole.Organization)
+                User.Create("admin@schronisko.pl", "hashedPassword", "Admin Schronisko", UserRole.Organization),
+                User.Create("admin@hospicjum.pl", "hashedPassword", "Admin Hospicjum", UserRole.Organization)
             };
 
             await _context.Users.AddRangeAsync(users);
@@ -90,6 +91,15 @@ public class DatabaseSeeder
                     targetAmount: 25000.00m,
                     contactEmail: "kontakt@schronisko.pl",
                     userId: users[4].Id
+                ),
+                Organization.Create(
+                    name: "Hospicjum Dobry Samarytanin",
+                    description: "Zapewniamy wsparcie osobom terminalnie chorym oraz ich rodzinom.",
+                    category: "zdrowie",
+                    location: "Poznań",
+                    targetAmount: 60000.00m,
+                    contactEmail: "kontakt@hospicjum.pl",
+                    userId: users[5].Id
                 )
             };
 
@@ -99,6 +109,7 @@ public class DatabaseSeeder
             organizations[2].UpdateCollectedAmount(8500.00m);
             organizations[3].UpdateCollectedAmount(12300.75m);
             organizations[4].UpdateCollectedAmount(6800.25m);
+            organizations[5].UpdateCollectedAmount(15500.00m);
 
             // Update profiles with phone numbers
             organizations[0].UpdateProfile(null, "+48 22 123 45 67", null, null, null, null);
@@ -106,6 +117,7 @@ public class DatabaseSeeder
             organizations[2].UpdateProfile(null, "+48 12 345 67 89", null, null, null, null);
             organizations[3].UpdateProfile(null, "+48 58 123 45 67", null, null, null, null);
             organizations[4].UpdateProfile(null, "+48 71 234 56 78", null, null, null, null);
+            organizations[5].UpdateProfile(null, "+48 61 123 45 67", null, null, null, null);
 
             // Approve all organizations
             foreach (var org in organizations)

@@ -149,15 +149,8 @@ dotnet test tests/CharityPay.Domain.Tests
 
 ### Database Management
 
-**Note**: Currently using `EnsureCreated` for development. Migrations are planned for production.
-
-```bash
-# Future migration commands (not yet implemented):
-# dotnet ef migrations add MigrationName -p src/CharityPay.Infrastructure -s src/CharityPay.API
-# dotnet ef database update -p src/CharityPay.Infrastructure -s src/CharityPay.API
-```
-
-The database is automatically created and seeded on first run in development.
+The application now applies EF Core migrations automatically on startup. During
+development the database is recreated and seeded with sample data (six test organizations).
 
 ### API Documentation
 
@@ -254,8 +247,8 @@ docker-compose logs -f
 ### Production Deployment
 
 The project ships with a helper script `start-production.sh` which provisions the
-containers defined in `docker-compose.production.yml`. To deploy to a host such
-as **194.181.240.37**:
+containers defined in `docker-compose.production.yml` and runs database migrations automatically.
+To deploy to a host such as **194.181.240.37**:
 
 1. Copy the provided template and edit your settings:
    ```bash
@@ -288,7 +281,7 @@ to a cloud provider:
 2. **Payment Processing**: Using mock implementation, returns test URLs
 3. **Email Service**: Not implemented
 4. **File Storage**: Local storage only, cloud storage pending
-5. **Database Migrations**: Using `EnsureCreated`, proper migrations needed for production
+5. **Database Migrations**: Automatically applied on startup
 
 ## Contributing
 
