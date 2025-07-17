@@ -182,25 +182,30 @@ app.MapGet("/", () => new
 
 // Health endpoint is handled by HealthController
 
-// Apply migrations and seed data on startup in development
-if (app.Environment.IsDevelopment())
+// Apply migrations and seed data
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<CharityPayDbContext>();
     try
     {
-        // For development, just ensure the database schema is created
-        // This bypasses migrations but creates tables based on the current model
-        await dbContext.Database.EnsureDeletedAsync(); // Clean slate for dev
-        await dbContext.Database.EnsureCreatedAsync();
-        app.Logger.LogInformation("Database schema created successfully");
-        
-        // Seed the database with sample data
-        await app.SeedDatabaseAsync();
+        if (app.Environment.IsDevelopment())
+        {
+            await dbContext.Database.EnsureDeletedAsync();
+            await dbContext.Database.EnsureCreatedAsync();
+            app.Logger.LogInformation("Database schema created successfully");
+
+            // Seed demo data
+            await app.SeedDatabaseAsync();
+        }
+        else
+        {
+            await dbContext.Database.MigrateAsync();
+            app.Logger.LogInformation("Database migrated successfully");
+        }
     }
     catch (Exception ex)
     {
-        app.Logger.LogError(ex, "An error occurred while creating the database: {Message}", ex.Message);
+        app.Logger.LogError(ex, "An error occurred while configuring the database: {Message}", ex.Message);
     }
 }
 
